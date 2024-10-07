@@ -1,0 +1,25 @@
+class MedicineInfo {
+  final String name;
+  final String quantity;
+  final String duration;
+  final String meal;
+  final String frequency;
+
+  MedicineInfo({
+    required this.name,
+    this.quantity = "",
+    this.duration = "",
+    this.meal = "anytime",
+    this.frequency = "",
+  });
+
+  factory MedicineInfo.fromJson(Map<String, dynamic> json) {
+    return MedicineInfo(
+      name: json['name'] ?? '',
+      quantity: json['quantity'] ?? '',
+      duration: json['duration'] ?? '',
+      meal: json['meal'] ?? 'anytime',
+      frequency: json['frequency'] ?? '',
+    );
+  }
+}
