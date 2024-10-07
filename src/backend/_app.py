@@ -6,7 +6,7 @@ import pytesseract
 import logging
 from PIL import Image
 import io
-from backend.lib._medico import Medico_
+from lib._medico import Medico_
 from pymongo import MongoClient
 from bson import ObjectId
 from apscheduler.schedulers.background import BackgroundScheduler
@@ -61,8 +61,11 @@ def process_image():
         # Save schedules to MongoDB
         for med in result:
             schedule_id = schedules_collection.insert_one({
-                'medicine_name': med['name'],
-                'dosage': f"{med['quantity']} {med['frequency']}",
+                'name': med['name'],
+                'quantity': med['quantity'],
+                'frequency': med['frequency'],
+                'duration': med['duration'],
+                'meal': med['meal'],
                 'created_at': datetime.now()
             }).inserted_id
 

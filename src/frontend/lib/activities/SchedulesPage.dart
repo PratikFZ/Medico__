@@ -1,9 +1,11 @@
 // ignore_for_file: file_names
 
-import 'package:medico/MedicineInfo';
+
 import 'package:flutter/material.dart';
 import 'dart:convert';
 import 'package:http/http.dart' as http;
+import 'package:medico/activities/MedicineInfo';
+import 'package:medico/main.dart';
 
 class SchedulesPage extends StatefulWidget {
   const SchedulesPage({super.key});
@@ -54,8 +56,23 @@ class _SchedulesPageState extends State<SchedulesPage> {
   }
 
   void _showError(String message) {
-    ScaffoldMessenger.of(context).showSnackBar(
-      SnackBar(content: Text(message)),
+    showDialog(
+      context: context,
+      builder: (ctx) => AlertDialog(
+        title: Text('Error'),
+        content: Text(message),
+        actions: [
+          TextButton(
+            onPressed: () {
+                Navigator.push(
+                  context,
+                  MaterialPageRoute(builder: (context) => HomePage()),
+                );
+            },
+            child: Text('OK'),
+          )
+        ],
+      ),
     );
   }
 
@@ -65,30 +82,7 @@ class _SchedulesPageState extends State<SchedulesPage> {
       appBar: AppBar(
         title: Text('Schedules'),
       ),
-      body: _isLoading
-          ? Center(child: CircularProgressIndicator())
-          : ListView.builder(
-              itemCount: _schedules.length,
-              itemBuilder: (context, index) {
-                MedicineInfo schedule = _schedules[index];
-                return ListTile(
-                  title: Text(schedule.name),
-                  subtitle: Text('${schedule.quantity} ${schedule.frequency}'),
-                  trailing: IconButton(
-                    icon: Icon(Icons.edit),
-                    onPressed: () {
-                      Navigator.push(
-                        context,
-                        MaterialPageRoute(
-                          builder: (context) =>
-                              EditSchedulePage(medicineInfo: schedule),
-                        ),
-                      ).then((_) => _fetchSchedules());
-                    },
-                  ),
-                );
-              },
-            ),
+      body: _buildBody(),
       floatingActionButton: FloatingActionButton(
         onPressed: () {
           Navigator.push(
@@ -100,6 +94,53 @@ class _SchedulesPageState extends State<SchedulesPage> {
         },
         child: Icon(Icons.add),
       ),
+    );
+  }
+
+  Widget _buildBody() {
+    if (_isLoading) {
+      return Center(child: CircularProgressIndicator());
+    }
+
+    if (_schedules.isEmpty) {
+      return Center(child: Text('No schedules available'));
+    }
+
+    return ListView.builder(
+      itemCount: _schedules.length,
+      itemBuilder: (context, index) {
+        if (index >= _schedules.length) {
+          return null;  // Return null for invalid indices
+        }
+        MedicineInfo schedule = _schedules[index];
+        return Card(
+          margin: EdgeInsets.symmetric(horizontal: 8, vertical: 4),
+          child: ListTile(
+            leading: CircleAvatar(
+              backgroundColor: Colors.blue,
+              foregroundColor: Colors.white,
+              child: Text(schedule.name.isNotEmpty ? schedule.name[0] : '0'),
+            ),
+            title: Text(
+              schedule.name,
+              style: TextStyle(fontWeight: FontWeight.bold),
+            ),
+            subtitle: Text('${schedule.quantity} ${schedule.frequency}'),
+            trailing: IconButton(
+              icon: Icon(Icons.edit),
+              onPressed: () {
+                Navigator.push(
+                  context,
+                  MaterialPageRoute(
+                    builder: (context) =>
+                        EditSchedulePage(medicineInfo: schedule),
+                  ),
+                ).then((_) => _fetchSchedules());
+              },
+            ),
+          ),
+        );
+      },
     );
   }
 }

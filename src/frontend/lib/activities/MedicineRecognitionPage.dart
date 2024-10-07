@@ -8,8 +8,9 @@ import 'dart:convert';
 import 'dart:io';
 import 'package:http/http.dart' as http;
 import 'package:audioplayers/audioplayers.dart';
-import 'package:medico/MedicineInfo';
+import 'package:medico/activities/MedicineInfo';
 import 'package:medico/activities/SchedulesPage.dart';
+import 'package:medico/main.dart';
 import 'package:path_provider/path_provider.dart';
 
 
@@ -30,11 +31,6 @@ class _MedicineRecognitionPageState extends State<MedicineRecognitionPage> {
   List<MedicineInfo> _medicineDetails = [];
   final AudioPlayer _audioPlayer = AudioPlayer();
 
-  @override
-  void initState() {
-    super.initState();
-    _checkConnection();
-  }
   
   Future<void> _pickImage() async {
     final XFile? pickedFile =
@@ -48,14 +44,6 @@ class _MedicineRecognitionPageState extends State<MedicineRecognitionPage> {
       });
 
       await _processImage(_image!);
-    }
-  }
-
-  Future<void> _checkConnection() async {
-    String url = 'http://192.168.1.109:5000/ping';
-    final response = await http.get(Uri.parse(url));
-    if (response.statusCode != 200) {
-      _showError(":( Failed to connect to the server");
     }
   }
 
@@ -165,7 +153,12 @@ class _MedicineRecognitionPageState extends State<MedicineRecognitionPage> {
         content: Text(message),
         actions: [
           TextButton(
-            onPressed: () => Navigator.of(ctx).pop(),
+            onPressed: () {
+                Navigator.push(
+                  context,
+                  MaterialPageRoute(builder: (context) => HomePage()),
+                );
+            },
             child: Text('OK'),
           )
         ],
