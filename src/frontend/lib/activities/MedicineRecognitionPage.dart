@@ -10,8 +10,8 @@ import 'package:http/http.dart' as http;
 import 'package:audioplayers/audioplayers.dart';
 import 'package:medico/activities/MedicineInfo';
 import 'package:medico/activities/SchedulesPage.dart';
-import 'package:medico/main.dart';
 import 'package:path_provider/path_provider.dart';
+import 'package:medico/functions/function.dart';
 
 class MedicineRecognitionPage extends StatefulWidget {
   const MedicineRecognitionPage({super.key});
@@ -77,10 +77,10 @@ class _MedicineRecognitionPageState extends State<MedicineRecognitionPage> {
         }
       } else {
         var errorData = jsonDecode(response.body);
-        _showError(errorData['error'] ?? 'Unknown error occurred');
+        showError(errorData['error'] ?? 'Unknown error occurred', context);
       }
     } catch (e) {
-      _showError('Failed to connect to ocr server: $e');
+      showError('Failed to connect to ocr server: $e', context);
     } finally {
       setState(() {
         _isLoading = false;
@@ -108,7 +108,7 @@ class _MedicineRecognitionPageState extends State<MedicineRecognitionPage> {
       );
 
       if (response.headers['content-type']?.contains('text/html') ?? false) {
-        _showError("Server returned an unexpected HTML response.");
+        showError("Server returned an unexpected HTML response.", context);
       }
 
       if (response.statusCode == 200) {
@@ -127,40 +127,19 @@ class _MedicineRecognitionPageState extends State<MedicineRecognitionPage> {
         if (await audioFile.exists()) {
           await _audioPlayer.play(DeviceFileSource(audioFile.path));
         } else {
-          _showError('Audio file not found');
+          showError('Audio file not found', context);
         }
       } else {
         var errorData = jsonDecode(response.body);
-        _showError(errorData['error'] ?? 'Failed to generate TTS');
+        showError(errorData['error'] ?? 'Failed to generate TTS', context);
       }
     } catch (e) {
-      _showError('Failed to connect to server: $e');
+      showError('Failed to connect to server: $e', context);
     } finally {
       setState(() {
         _isLoading = false;
       });
     }
-  }
-
-  void _showError(String message) {
-    showDialog(
-      context: context,
-      builder: (ctx) => AlertDialog(
-        title: Text('Error'),
-        content: Text(message),
-        actions: [
-          TextButton(
-            onPressed: () {
-              Navigator.push(
-                context,
-                MaterialPageRoute(builder: (context) => HomePage()),
-              );
-            },
-            child: Text('OK'),
-          )
-        ],
-      ),
-    );
   }
 
   Widget _buildMedicineList() {

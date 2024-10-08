@@ -31,6 +31,7 @@ class HomePage extends StatelessWidget {
     return Scaffold(
       appBar: AppBar(
         title: Text('Medicine Manager'),
+        backgroundColor: Colors.green,
       ),
       body: Center(
         child: Column(

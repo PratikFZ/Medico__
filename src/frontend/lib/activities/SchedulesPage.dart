@@ -4,7 +4,7 @@ import 'package:flutter/material.dart';
 import 'dart:convert';
 import 'package:http/http.dart' as http;
 import 'package:medico/activities/MedicineInfo';
-import 'package:medico/main.dart';
+import 'package:medico/functions/function.dart';
 
 class SchedulesPage extends StatefulWidget {
   const SchedulesPage({super.key});
@@ -43,16 +43,17 @@ class _SchedulesPageState extends State<SchedulesPage> {
               .toList();
         });
       } else {
-        _showError('Failed to fetch schedules');
+        showError('Fails to load data', context);
       }
     } catch (e) {
-      _showError('Failed to connect to server: $e');
+      showError('Failed to connect to server: $e', context);
     } finally {
       setState(() {
         _isLoading = false;
       });
     }
   }
+
 
   // ignore: unused_element
   Future<void> _deleteSchedule(MedicineInfo medicine) async {
@@ -76,33 +77,12 @@ class _SchedulesPageState extends State<SchedulesPage> {
         _fetchSchedules();
       }
     } catch (e) {
-      _showError('Failed to connect to server: $e');
+      showError('Failed to connect to server: $e', context);
     } finally {
       setState(() {
         _isLoading = false;
       });
     }
-  }
-
-  void _showError(String message) {
-    showDialog(
-      context: context,
-      builder: (ctx) => AlertDialog(
-        title: Text('Error'),
-        content: Text(message),
-        actions: [
-          TextButton(
-            onPressed: () {
-              Navigator.push(
-                context,
-                MaterialPageRoute(builder: (context) => HomePage()),
-              );
-            },
-            child: Text('OK'),
-          )
-        ],
-      ),
-    );
   }
 
   @override
