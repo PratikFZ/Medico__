@@ -1,6 +1,5 @@
 // ignore_for_file: file_names
 
-
 import 'package:flutter/material.dart';
 import 'dart:convert';
 import 'package:http/http.dart' as http;
@@ -55,6 +54,36 @@ class _SchedulesPageState extends State<SchedulesPage> {
     }
   }
 
+  // ignore: unused_element
+  Future<void> _deleteSchedule(MedicineInfo medicine) async {
+    setState(() {
+      _isLoading = true;
+    });
+
+    String url =
+        'http://192.168.1.109:5000/schedules'; // Replace with your server's IP
+
+    try {
+      var response = await http.post(
+        Uri.parse(url),
+        headers: {'Content-Type': 'application/json'},
+        body: jsonEncode({
+          'name': medicine.name,
+        }),
+      );
+
+      if (response.statusCode == 200) {
+        _fetchSchedules();
+      }
+    } catch (e) {
+      _showError('Failed to connect to server: $e');
+    } finally {
+      setState(() {
+        _isLoading = false;
+      });
+    }
+  }
+
   void _showError(String message) {
     showDialog(
       context: context,
@@ -64,10 +93,10 @@ class _SchedulesPageState extends State<SchedulesPage> {
         actions: [
           TextButton(
             onPressed: () {
-                Navigator.push(
-                  context,
-                  MaterialPageRoute(builder: (context) => HomePage()),
-                );
+              Navigator.push(
+                context,
+                MaterialPageRoute(builder: (context) => HomePage()),
+              );
             },
             child: Text('OK'),
           )
@@ -110,7 +139,7 @@ class _SchedulesPageState extends State<SchedulesPage> {
       itemCount: _schedules.length,
       itemBuilder: (context, index) {
         if (index >= _schedules.length) {
-          return null;  // Return null for invalid indices
+          return null; // Return null for invalid indices
         }
         MedicineInfo schedule = _schedules[index];
         return Card(
@@ -126,17 +155,29 @@ class _SchedulesPageState extends State<SchedulesPage> {
               style: TextStyle(fontWeight: FontWeight.bold),
             ),
             subtitle: Text('${schedule.quantity} ${schedule.frequency}'),
-            trailing: IconButton(
-              icon: Icon(Icons.edit),
-              onPressed: () {
-                Navigator.push(
-                  context,
-                  MaterialPageRoute(
-                    builder: (context) =>
-                        EditSchedulePage(medicineInfo: schedule),
-                  ),
-                ).then((_) => _fetchSchedules());
-              },
+            // children:
+            trailing: Row(
+              mainAxisSize: MainAxisSize.min,
+              children: <Widget>[
+                IconButton(
+                  icon: Icon(Icons.delete),
+                  onPressed: () {
+                    _deleteSchedule(schedule);
+                  },
+                ),
+                IconButton(
+                  icon: Icon(Icons.edit),
+                  onPressed: () {
+                    Navigator.push(
+                      context,
+                      MaterialPageRoute(
+                        builder: (context) =>
+                            EditSchedulePage(medicineInfo: schedule),
+                      ),
+                    ).then((_) => _fetchSchedules());
+                  },
+                ),
+              ],
             ),
           ),
         );

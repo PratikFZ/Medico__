@@ -13,7 +13,6 @@ import 'package:medico/activities/SchedulesPage.dart';
 import 'package:medico/main.dart';
 import 'package:path_provider/path_provider.dart';
 
-
 class MedicineRecognitionPage extends StatefulWidget {
   const MedicineRecognitionPage({super.key});
 
@@ -31,7 +30,6 @@ class _MedicineRecognitionPageState extends State<MedicineRecognitionPage> {
   List<MedicineInfo> _medicineDetails = [];
   final AudioPlayer _audioPlayer = AudioPlayer();
 
-  
   Future<void> _pickImage() async {
     final XFile? pickedFile =
         await _picker.pickImage(source: ImageSource.gallery);
@@ -46,7 +44,6 @@ class _MedicineRecognitionPageState extends State<MedicineRecognitionPage> {
       await _processImage(_image!);
     }
   }
-
 
   Future<void> _processImage(File imageFile) async {
     setState(() {
@@ -104,9 +101,9 @@ class _MedicineRecognitionPageState extends State<MedicineRecognitionPage> {
         Uri.parse(url),
         headers: {'Content-Type': 'application/json'},
         body: jsonEncode({
-          'medicine_name': medicine.name,
+          'name': medicine.name,
           'dosage': medicine.quantity.isNotEmpty ? medicine.quantity : '500 mg',
-          // 'meal': medicine.meal.isNotEmpty ? medicine.meal : 'anytime',
+          'meal': medicine.meal.isNotEmpty ? medicine.meal : 'anytime',
         }),
       );
 
@@ -154,10 +151,10 @@ class _MedicineRecognitionPageState extends State<MedicineRecognitionPage> {
         actions: [
           TextButton(
             onPressed: () {
-                Navigator.push(
-                  context,
-                  MaterialPageRoute(builder: (context) => HomePage()),
-                );
+              Navigator.push(
+                context,
+                MaterialPageRoute(builder: (context) => HomePage()),
+              );
             },
             child: Text('OK'),
           )

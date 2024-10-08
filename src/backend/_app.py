@@ -93,16 +93,23 @@ def process_image():
 
 @app.route('/schedules', methods=['GET', 'POST'])
 def get_schedules():
-    schedules = list(schedules_collection.find())
-    for schedule in schedules:
-        schedule['_id'] = str(schedule['_id'])
-    return jsonify(schedules), 200
+    if request.method == 'GET' :
+        schedules = list(schedules_collection.find())
+        for schedule in schedules:
+            schedule['_id'] = str(schedule['_id'])
+        return jsonify(schedules), 200
+    else:
+        data = request.json
+        medicine_name =data.get("name")
+        print(medicine_name)
+        schedules_collection.delete_one( { 'name': medicine_name})
+        return "Medicine deleted", 200
 
 @app.route('/generate_audio', methods=['POST'])
 def generate_audio():
     try:
         data = request.json
-        medicine_name = data.get("medicine_name")
+        medicine_name = data.get("name")
         dosage = data.get("dosage")
 
         if not medicine_name or not dosage:
