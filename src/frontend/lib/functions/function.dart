@@ -3,7 +3,7 @@
 import 'package:flutter/material.dart';
 
 String getLink() {
-  String localhost = 'https://9804-2409-40c2-105d-a9ca-7b47-5fbd-b674-680.ngrok-free.app';
+  String localhost = 'http://192.168.1.109:5000';
   return localhost;
 }
 

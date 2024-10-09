@@ -4,14 +4,35 @@ import pandas as pd
 import re
 from typing import List, Tuple, Dict, Optional
 from dataclasses import dataclass
+import json
 
 @dataclass
 class MedicineInfo:
+    # _id: int = "x0"
     name: str
     quantity: str = ""
     duration: str = ""
     meal: str = "anytime"
     frequency: str = ""
+
+    def fromJson( self, data ) -> None:
+        # self._id = data.get("_id")
+        self.name = data.get("name")
+        self.quantity = data.get("quantity")
+        self.duration = data.get("duration")
+        self.meal = data.get("meal")
+        self.frequency = data.get("frequency")
+    
+    def toJson( self) -> str:
+        return json.dumps({
+            # '_id': self._id,
+            'name': self.name,
+            'quantity': self.quantity,
+            'frequency': self.frequency,
+            'duration': self.duration,
+            'meal': self.meal,
+        })
+
 
 class Medico_:
     def __init__(self, text: str) -> None:
@@ -115,4 +136,4 @@ if __name__ == "__main__":
     medico = Medico_(text)
     results = medico.main()
     for result in results:
-        print(result)
+        print(result.toJson())

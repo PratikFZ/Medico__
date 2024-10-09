@@ -87,60 +87,6 @@ class _MedicineRecognitionPageState extends State<MedicineRecognitionPage> {
     }
   }
 
-  // Future<void> _generateTTS(MedicineInfo medicine) async {
-  //   setState(() {
-  //     _isLoading = true;
-  //   });
-
-  //   String url =
-  //       'http://192.168.1.109:5000/generate_audio'; // Replace with your server's IP
-
-  //   try {
-  //     var response = await http.post(
-  //       Uri.parse(url),
-  //       headers: {'Content-Type': 'application/json'},
-  //       body: jsonEncode({
-  //         'name': medicine.name,
-  //         'dosage': medicine.quantity.isNotEmpty ? medicine.quantity : '500 mg',
-  //         'meal': medicine.meal.isNotEmpty ? medicine.meal : 'anytime',
-  //       }),
-  //     );
-
-  //     if (response.headers['content-type']?.contains('text/html') ?? false) {
-  //       showError("Server returned an unexpected HTML response.", context);
-  //     }
-
-  //     if (response.statusCode == 200) {
-  //       // Use pathprovider to get the app's documents directory
-  //       Directory appDocDir = await getApplicationDocumentsDirectory();
-  //       String filePath =
-  //           '${appDocDir.path}/${medicine.name}${medicine.quantity}.mp3';
-
-  //       // Save the response as an MP3 file
-  //       File audioFile = File(filePath);
-  //       await audioFile.writeAsBytes(
-  //           response.bodyBytes); // Save binary data as a local MP3 file
-
-  //       // Play the audio file using audioplayers
-  //       // await _audioPlayer.play(DeviceFileSource(audioFile.path));  // Use DeviceFileSource to play local files
-  //       if (await audioFile.exists()) {
-  //         await _audioPlayer.play(DeviceFileSource(audioFile.path));
-  //       } else {
-  //         showError('Audio file not found', context);
-  //       }
-  //     } else {
-  //       var errorData = jsonDecode(response.body);
-  //       showError(errorData['error'] ?? 'Failed to generate TTS', context);
-  //     }
-  //   } catch (e) {
-  //     showError('Failed to connect to server: $e', context);
-  //   } finally {
-  //     setState(() {
-  //       _isLoading = false;
-  //     });
-  //   }
-  // }
-
   Widget _buildMedicineList() {
     if (_medicineDetails.isEmpty) {
       return Text('No medicines recognized.');

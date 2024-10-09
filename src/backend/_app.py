@@ -69,23 +69,6 @@ def process_image():
                 'created_at': datetime.now()
             }).inserted_id
 
-            # Schedule announcements
-            if med['frequency']:
-                times_per_day = 1  # Default
-                if 'twice' in med['frequency']:
-                    times_per_day = 2
-                elif 'thrice' in med['frequency']:
-                    times_per_day = 3
-
-                for i in range(times_per_day):
-                    scheduler.add_job(
-                        play_announcement,
-                        'interval',
-                        days=1,
-                        start_date=datetime.now() + timedelta(hours=i*8),
-                        args=[med['name'], med['quantity']]
-                    )
-
         return jsonify({'medicine_details': result, 'extracted_text': extracted_text}), 200
 
     except Exception as e:
@@ -105,7 +88,6 @@ def get_schedules():
             schedules_collection.delete_one( { 'name': medicine_name})
         
         elif str(data.get("operation")) == "save":
-            print("Saving")
             schedules_collection.insert_one({
                 'name': data.get("name"),
                 'quantity': data['quantity'],
@@ -115,6 +97,18 @@ def get_schedules():
                 'created_at': datetime.now()
             }).inserted_id
 
+        elif str(data.get("operation")) == "edit":
+            schedules_collection.update_one(
+                { '_id': data.get('_id') }, 
+                {
+                    '$name': data.get("name"),
+                    '$quantity': data['quantity'],
+                    '$frequency': data['frequency'],
+                    '$duration': data['duration'],
+                    '$meal': data['meal'],
+                    '$created_at': datetime.now()
+                },
+            )
         return "Medicine is deleted", 200
             
 
