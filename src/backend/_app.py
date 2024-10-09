@@ -100,10 +100,23 @@ def get_schedules():
         return jsonify(schedules), 200
     else:
         data = request.json
-        medicine_name =data.get("name")
-        print(medicine_name)
-        schedules_collection.delete_one( { 'name': medicine_name})
-        return "Medicine deleted", 200
+        if str(data.get("operation")) == "delete":
+            medicine_name =data.get("name")
+            schedules_collection.delete_one( { 'name': medicine_name})
+        
+        elif str(data.get("operation")) == "save":
+            print("Saving")
+            schedules_collection.insert_one({
+                'name': data.get("name"),
+                'quantity': data['quantity'],
+                'frequency': data['frequency'],
+                'duration': data['duration'],
+                'meal': data['meal'],
+                'created_at': datetime.now()
+            }).inserted_id
+
+        return "Medicine is deleted", 200
+            
 
 @app.route('/generate_audio', methods=['POST'])
 def generate_audio():

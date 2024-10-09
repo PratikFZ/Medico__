@@ -11,7 +11,7 @@ void showError(String message, BuildContext context) {
       actions: [
         TextButton(
           onPressed: () {
-            Navigator.pop(context, true);
+            Navigator.of(context).pop();
           },
           child: Text('OK'),
         )

@@ -1,4 +1,4 @@
-// ignore_for_file: file_names
+// ignore_for_file: file_names, use_build_context_synchronously
 
 import 'package:flutter/material.dart';
 import 'dart:convert';
@@ -11,20 +11,20 @@ class SchedulesPage extends StatefulWidget {
 
   @override
   // ignore: library_private_types_in_public_api
-  _SchedulesPageState createState() => _SchedulesPageState();
+  SchedulesPageState createState() => SchedulesPageState();
 }
 
-class _SchedulesPageState extends State<SchedulesPage> {
+class SchedulesPageState extends State<SchedulesPage> {
   List<MedicineInfo> _schedules = [];
   bool _isLoading = false;
 
   @override
   void initState() {
     super.initState();
-    _fetchSchedules();
+    fetchSchedules();
   }
 
-  Future<void> _fetchSchedules() async {
+  Future<void> fetchSchedules() async {
     setState(() {
       _isLoading = true;
     });
@@ -47,6 +47,7 @@ class _SchedulesPageState extends State<SchedulesPage> {
       }
     } catch (e) {
       showError('Failed to connect to server: $e', context);
+      // Navigator.of(context).pop();
     } finally {
       setState(() {
         _isLoading = false;
@@ -54,8 +55,6 @@ class _SchedulesPageState extends State<SchedulesPage> {
     }
   }
 
-
-  // ignore: unused_element
   Future<void> _deleteSchedule(MedicineInfo medicine) async {
     setState(() {
       _isLoading = true;
@@ -69,18 +68,20 @@ class _SchedulesPageState extends State<SchedulesPage> {
         Uri.parse(url),
         headers: {'Content-Type': 'application/json'},
         body: jsonEncode({
+          'operation': 'delete',
           'name': medicine.name,
         }),
       );
 
-      if (response.statusCode == 200) {
-        _fetchSchedules();
+      if (response.statusCode != 200) {
+        showError('Failed to delete the entry', context);
       }
     } catch (e) {
       showError('Failed to connect to server: $e', context);
     } finally {
       setState(() {
         _isLoading = false;
+        fetchSchedules();
       });
     }
   }
@@ -99,7 +100,7 @@ class _SchedulesPageState extends State<SchedulesPage> {
             MaterialPageRoute(
               builder: (context) => EditSchedulePage(),
             ),
-          ).then((_) => _fetchSchedules());
+          ).then((_) => fetchSchedules());
         },
         child: Icon(Icons.add),
       ),
@@ -154,7 +155,7 @@ class _SchedulesPageState extends State<SchedulesPage> {
                         builder: (context) =>
                             EditSchedulePage(medicineInfo: schedule),
                       ),
-                    ).then((_) => _fetchSchedules());
+                    ).then((_) => fetchSchedules());
                   },
                 ),
               ],
@@ -173,10 +174,10 @@ class EditSchedulePage extends StatefulWidget {
 
   @override
   // ignore: library_private_types_in_public_api
-  _EditSchedulePageState createState() => _EditSchedulePageState();
+  EditSchedulePageState createState() => EditSchedulePageState();
 }
 
-class _EditSchedulePageState extends State<EditSchedulePage> {
+class EditSchedulePageState extends State<EditSchedulePage> {
   final _formKey = GlobalKey<FormState>();
   late TextEditingController _nameController;
   late TextEditingController _quantityController;
@@ -210,8 +211,29 @@ class _EditSchedulePageState extends State<EditSchedulePage> {
   }
 
   Future<void> _saveSchedule() async {
-    if (_formKey.currentState!.validate()) {
-      Navigator.pop(context);
+    String url =
+        'http://192.168.1.109:5000/schedules'; // Replace with your server's IP
+
+    // showError('Failed to save schedule', context);
+    try {
+      var response = await http.post(
+        Uri.parse(url),
+        headers: {'Content-Type': 'application/json'},
+        body: jsonEncode({
+          'operation': 'save',
+          'name': _nameController.text,
+          'quantity': _quantityController.text,
+          'frequency': _frequencyController.text,
+          'duration': _durationController.text,
+          'meal': _mealController.text,
+        }),
+      );
+
+      if (response.statusCode != 200) {
+        showError('Failed to save schedule', context);
+      }
+    } catch (e) {
+      showError('Failed to connect to server: $e', context);
     }
   }
 
@@ -255,8 +277,13 @@ class _EditSchedulePageState extends State<EditSchedulePage> {
             ),
             SizedBox(height: 20),
             ElevatedButton(
-              onPressed: _saveSchedule,
-              child: Text('Save Schedule'),
+              onPressed: () {
+                _saveSchedule();
+                Navigator.of(context).pop();
+              },
+              child: Text(widget.medicineInfo == null
+                  ? 'Save Schedule'
+                  : 'Edit Schedule'),
             ),
           ],
         ),

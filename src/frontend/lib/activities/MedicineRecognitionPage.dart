@@ -1,16 +1,15 @@
 // ignore: duplicate_ignore
 // ignore: file_names
-// ignore_for_file: file_names
+// ignore_for_file: file_names, use_build_context_synchronously
 
 import 'package:flutter/material.dart';
 import 'package:image_picker/image_picker.dart';
 import 'dart:convert';
 import 'dart:io';
 import 'package:http/http.dart' as http;
-import 'package:audioplayers/audioplayers.dart';
+// import 'package:audioplayers/audioplayers.dart';
 import 'package:medico/activities/MedicineInfo';
 import 'package:medico/activities/SchedulesPage.dart';
-import 'package:path_provider/path_provider.dart';
 import 'package:medico/functions/function.dart';
 
 class MedicineRecognitionPage extends StatefulWidget {
@@ -26,9 +25,10 @@ class _MedicineRecognitionPageState extends State<MedicineRecognitionPage> {
   File? _image;
   final ImagePicker _picker = ImagePicker();
   bool _isLoading = false;
+  // ignore: unused_field
   String _extractedText = "";
   List<MedicineInfo> _medicineDetails = [];
-  final AudioPlayer _audioPlayer = AudioPlayer();
+  // final AudioPlayer _audioPlayer = AudioPlayer();
 
   Future<void> _pickImage() async {
     final XFile? pickedFile =
@@ -72,9 +72,9 @@ class _MedicineRecognitionPageState extends State<MedicineRecognitionPage> {
               medicineList.map((item) => MedicineInfo.fromJson(item)).toList();
         });
 
-        if (_medicineDetails.isNotEmpty) {
-          await _generateTTS(_medicineDetails[0]);
-        }
+        // if (_medicineDetails.isNotEmpty) {
+        //   await _generateTTS(_medicineDetails[0]);
+        // }
       } else {
         var errorData = jsonDecode(response.body);
         showError(errorData['error'] ?? 'Unknown error occurred', context);
@@ -88,59 +88,59 @@ class _MedicineRecognitionPageState extends State<MedicineRecognitionPage> {
     }
   }
 
-  Future<void> _generateTTS(MedicineInfo medicine) async {
-    setState(() {
-      _isLoading = true;
-    });
+  // Future<void> _generateTTS(MedicineInfo medicine) async {
+  //   setState(() {
+  //     _isLoading = true;
+  //   });
 
-    String url =
-        'http://192.168.1.109:5000/generate_audio'; // Replace with your server's IP
+  //   String url =
+  //       'http://192.168.1.109:5000/generate_audio'; // Replace with your server's IP
 
-    try {
-      var response = await http.post(
-        Uri.parse(url),
-        headers: {'Content-Type': 'application/json'},
-        body: jsonEncode({
-          'name': medicine.name,
-          'dosage': medicine.quantity.isNotEmpty ? medicine.quantity : '500 mg',
-          'meal': medicine.meal.isNotEmpty ? medicine.meal : 'anytime',
-        }),
-      );
+  //   try {
+  //     var response = await http.post(
+  //       Uri.parse(url),
+  //       headers: {'Content-Type': 'application/json'},
+  //       body: jsonEncode({
+  //         'name': medicine.name,
+  //         'dosage': medicine.quantity.isNotEmpty ? medicine.quantity : '500 mg',
+  //         'meal': medicine.meal.isNotEmpty ? medicine.meal : 'anytime',
+  //       }),
+  //     );
 
-      if (response.headers['content-type']?.contains('text/html') ?? false) {
-        showError("Server returned an unexpected HTML response.", context);
-      }
+  //     if (response.headers['content-type']?.contains('text/html') ?? false) {
+  //       showError("Server returned an unexpected HTML response.", context);
+  //     }
 
-      if (response.statusCode == 200) {
-        // Use pathprovider to get the app's documents directory
-        Directory appDocDir = await getApplicationDocumentsDirectory();
-        String filePath =
-            '${appDocDir.path}/${medicine.name}${medicine.quantity}.mp3';
+  //     if (response.statusCode == 200) {
+  //       // Use pathprovider to get the app's documents directory
+  //       Directory appDocDir = await getApplicationDocumentsDirectory();
+  //       String filePath =
+  //           '${appDocDir.path}/${medicine.name}${medicine.quantity}.mp3';
 
-        // Save the response as an MP3 file
-        File audioFile = File(filePath);
-        await audioFile.writeAsBytes(
-            response.bodyBytes); // Save binary data as a local MP3 file
+  //       // Save the response as an MP3 file
+  //       File audioFile = File(filePath);
+  //       await audioFile.writeAsBytes(
+  //           response.bodyBytes); // Save binary data as a local MP3 file
 
-        // Play the audio file using audioplayers
-        // await _audioPlayer.play(DeviceFileSource(audioFile.path));  // Use DeviceFileSource to play local files
-        if (await audioFile.exists()) {
-          await _audioPlayer.play(DeviceFileSource(audioFile.path));
-        } else {
-          showError('Audio file not found', context);
-        }
-      } else {
-        var errorData = jsonDecode(response.body);
-        showError(errorData['error'] ?? 'Failed to generate TTS', context);
-      }
-    } catch (e) {
-      showError('Failed to connect to server: $e', context);
-    } finally {
-      setState(() {
-        _isLoading = false;
-      });
-    }
-  }
+  //       // Play the audio file using audioplayers
+  //       // await _audioPlayer.play(DeviceFileSource(audioFile.path));  // Use DeviceFileSource to play local files
+  //       if (await audioFile.exists()) {
+  //         await _audioPlayer.play(DeviceFileSource(audioFile.path));
+  //       } else {
+  //         showError('Audio file not found', context);
+  //       }
+  //     } else {
+  //       var errorData = jsonDecode(response.body);
+  //       showError(errorData['error'] ?? 'Failed to generate TTS', context);
+  //     }
+  //   } catch (e) {
+  //     showError('Failed to connect to server: $e', context);
+  //   } finally {
+  //     setState(() {
+  //       _isLoading = false;
+  //     });
+  //   }
+  // }
 
   Widget _buildMedicineList() {
     if (_medicineDetails.isEmpty) {
@@ -210,16 +210,16 @@ class _MedicineRecognitionPageState extends State<MedicineRecognitionPage> {
                 : Column(
                     crossAxisAlignment: CrossAxisAlignment.start,
                     children: [
-                      if (_extractedText.isNotEmpty) ...[
-                        Text(
-                          'Extracted Text:',
-                          style: TextStyle(
-                              fontWeight: FontWeight.bold, fontSize: 16),
-                        ),
-                        SizedBox(height: 8),
-                        Text(_extractedText),
-                        SizedBox(height: 20),
-                      ],
+                      // if (_extractedText.isNotEmpty) ...[
+                      //   Text(
+                      //     'Extracted Text:',
+                      //     style: TextStyle(
+                      //         fontWeight: FontWeight.bold, fontSize: 16),
+                      //   ),
+                      //   SizedBox(height: 8),
+                      //   Text(_extractedText),
+                      //   SizedBox(height: 20),
+                      // ],
                       Text(
                         'Medicine Details:',
                         style: TextStyle(
