@@ -50,8 +50,7 @@ class _MedicineRecognitionPageState extends State<MedicineRecognitionPage> {
       _isLoading = true;
     });
 
-    String url =
-        'http://192.168.1.109:5000/process_image'; // Update with your server IP
+    String url = '${getLink()}/process_image'; // Update with your server IP
 
     try {
       var request = http.MultipartRequest('POST', Uri.parse(url));
@@ -167,13 +166,18 @@ class _MedicineRecognitionPageState extends State<MedicineRecognitionPage> {
             ),
             trailing: IconButton(
               icon: Icon(Icons.edit),
-              onPressed: () {
-                Navigator.push(
+              onPressed: () async {
+                final save = await Navigator.push(
                   context,
                   MaterialPageRoute(
                     builder: (context) => EditSchedulePage(medicineInfo: med),
                   ),
                 );
+                if (save != null) {
+                  setState(() {
+                    med = save;
+                  });
+                }
               },
             ),
           ),

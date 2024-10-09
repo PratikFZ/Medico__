@@ -29,8 +29,7 @@ class SchedulesPageState extends State<SchedulesPage> {
       _isLoading = true;
     });
 
-    String url =
-        'http://192.168.1.109:5000/schedules'; // Update with your server IP
+    String url = '${getLink()}/schedules'; // Update with your server IP
 
     try {
       var response = await http.get(Uri.parse(url));
@@ -60,8 +59,7 @@ class SchedulesPageState extends State<SchedulesPage> {
       _isLoading = true;
     });
 
-    String url =
-        'http://192.168.1.109:5000/schedules'; // Replace with your server's IP
+    String url = '${getLink()}/schedules'; // Replace with your server's IP
 
     try {
       var response = await http.post(
@@ -211,8 +209,7 @@ class EditSchedulePageState extends State<EditSchedulePage> {
   }
 
   Future<void> _saveSchedule() async {
-    String url =
-        'http://192.168.1.109:5000/schedules'; // Replace with your server's IP
+    String url = '${getLink()}/schedules'; // Replace with your server's IP
 
     // showError('Failed to save schedule', context);
     try {
@@ -279,7 +276,15 @@ class EditSchedulePageState extends State<EditSchedulePage> {
             ElevatedButton(
               onPressed: () {
                 _saveSchedule();
-                Navigator.of(context).pop();
+                Navigator.of(context).pop(
+                  MedicineInfo(
+                    name: _nameController.text,
+                    quantity: _quantityController.text,
+                    frequency: _frequencyController.text,
+                    duration: _durationController.text,
+                    meal: _mealController.text,
+                  )
+                );
               },
               child: Text(widget.medicineInfo == null
                   ? 'Save Schedule'

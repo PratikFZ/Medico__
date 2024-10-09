@@ -1,7 +1,7 @@
 class MedicineInfo {
   // final String id;
   final String name;
-  final String quantity;
+  late final String quantity;
   final String duration;
   final String meal;
   final String frequency;
