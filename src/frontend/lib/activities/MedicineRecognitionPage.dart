@@ -1,13 +1,10 @@
-// ignore: duplicate_ignore
-// ignore: file_names
-// ignore_for_file: file_names, use_build_context_synchronously
+// ignore_for_file: use_build_context_synchronously, file_names
 
 import 'package:flutter/material.dart';
 import 'package:image_picker/image_picker.dart';
 import 'dart:convert';
 import 'dart:io';
 import 'package:http/http.dart' as http;
-// import 'package:audioplayers/audioplayers.dart';
 import 'package:medico/activities/MedicineInfo';
 import 'package:medico/activities/SchedulesPage.dart';
 import 'package:medico/functions/function.dart';
@@ -28,7 +25,6 @@ class _MedicineRecognitionPageState extends State<MedicineRecognitionPage> {
   // ignore: unused_field
   String _extractedText = "";
   List<MedicineInfo> _medicineDetails = [];
-  // final AudioPlayer _audioPlayer = AudioPlayer();
 
   Future<void> _pickImage() async {
     final XFile? pickedFile =
@@ -70,10 +66,6 @@ class _MedicineRecognitionPageState extends State<MedicineRecognitionPage> {
           _medicineDetails =
               medicineList.map((item) => MedicineInfo.fromJson(item)).toList();
         });
-
-        // if (_medicineDetails.isNotEmpty) {
-        //   await _generateTTS(_medicineDetails[0]);
-        // }
       } else {
         var errorData = jsonDecode(response.body);
         showError(errorData['error'] ?? 'Unknown error occurred', context);
@@ -99,34 +91,50 @@ class _MedicineRecognitionPageState extends State<MedicineRecognitionPage> {
         MedicineInfo med = _medicineDetails[index];
         return Card(
           child: ListTile(
-            title: Text(med.name),
-            subtitle: Column(
-              crossAxisAlignment: CrossAxisAlignment.start,
-              children: [
-                if (med.quantity.isNotEmpty) Text('Quantity: ${med.quantity}'),
-                if (med.duration.isNotEmpty) Text('Duration: ${med.duration}'),
-                if (med.meal.isNotEmpty) Text('Meal: ${med.meal}'),
-                if (med.frequency.isNotEmpty)
-                  Text('Frequency: ${med.frequency}'),
-              ],
-            ),
-            trailing: IconButton(
-              icon: Icon(Icons.edit),
-              onPressed: () async {
-                final save = await Navigator.push(
-                  context,
-                  MaterialPageRoute(
-                    builder: (context) => EditSchedulePage(medicineInfo: med),
+              title: Text(med.name),
+              subtitle: Column(
+                crossAxisAlignment: CrossAxisAlignment.start,
+                children: [
+                  if (med.quantity.isNotEmpty)
+                    Text('Quantity: ${med.quantity}'),
+                  if (med.duration.isNotEmpty)
+                    Text('Duration: ${med.duration}'),
+                  if (med.meal.isNotEmpty) Text('Meal: ${med.meal}'),
+                  if (med.frequency.isNotEmpty)
+                    Text('Frequency: ${med.frequency}'),
+                ],
+              ),
+              trailing: Row( 
+                mainAxisSize: MainAxisSize.min, 
+                children: <Widget>[
+                  IconButton(
+                    icon: Icon(Icons.edit),
+                    onPressed: () async {
+                      final MedicineInfo? save = await Navigator.push(
+                        context,
+                        MaterialPageRoute(
+                          builder: (context) => EditSchedulePage(
+                            medicineInfo: med,
+                            isSave: false,
+                          ),
+                        ),
+                      );
+                      if ( save != null){
+                        setState(() {
+                        _medicineDetails[index] = save;
+                        });
+                      }
+                    },
                   ),
-                );
-                if (save != null) {
-                  setState(() {
-                    med = save;
-                  });
-                }
-              },
+                  IconButton(
+                    onPressed: () async {
+                      saveSchedule(med, context);
+                    },
+                    icon: Icon(Icons.save),
+                  )
+                ]
+              )
             ),
-          ),
         );
       },
     );

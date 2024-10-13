@@ -1,22 +1,24 @@
 class MedicineInfo {
-  // final String id;
+  final String id;
   final String name;
   late final String quantity;
   final String duration;
   final String meal;
   final String frequency;
 
+ 
   MedicineInfo({
-    // required this.id
     required this.name,
     this.quantity = "",
     this.duration = "",
     this.meal = "anytime",
     this.frequency = "",
+    this.id = "x0",
   });
 
   factory MedicineInfo.fromJson(Map<String, dynamic> json) {
     return MedicineInfo(
+      id: json['id'] ?? "x0",
       name: json['name'] ?? '',
       quantity: json['quantity'] ?? '',
       duration: json['duration'] ?? '',

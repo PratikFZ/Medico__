@@ -1,10 +1,11 @@
 // ignore_for_file: file_names, use_build_context_synchronously
 
-import 'package:flutter/material.dart';
 import 'dart:convert';
-import 'package:http/http.dart' as http;
+
+import 'package:flutter/material.dart';
 import 'package:medico/activities/MedicineInfo';
 import 'package:medico/functions/function.dart';
+import 'package:http/http.dart' as http;
 
 class SchedulesPage extends StatefulWidget {
   const SchedulesPage({super.key});
@@ -16,15 +17,20 @@ class SchedulesPage extends StatefulWidget {
 
 class SchedulesPageState extends State<SchedulesPage> {
   List<MedicineInfo> _schedules = [];
+  // ignore: prefer_final_fields
   bool _isLoading = false;
 
   @override
   void initState() {
     super.initState();
-    fetchSchedules();
+    _fetchSchedules();
   }
 
-  Future<void> fetchSchedules() async {
+  // Future<void> _fetchSchedules() async {
+  //     _schedules = await fetchSchedules(context) ;
+  // }
+
+  Future<void> _fetchSchedules() async {
     setState(() {
       _isLoading = true;
     });
@@ -54,6 +60,32 @@ class SchedulesPageState extends State<SchedulesPage> {
     }
   }
 
+  // Future<void> saveSchedule(MedicineInfo medicine) async {
+  //   String url = '${getLink()}/schedules'; // Replace with your server's IP
+
+  //   // showError('Failed to save schedule', context);
+  //   try {
+  //     var response = await http.post(
+  //       Uri.parse(url),
+  //       headers: {'Content-Type': 'application/json'},
+  //       body: jsonEncode({
+  //         'operation': 'save',
+  //         'name': medicine.name,
+  //         'quantity': medicine.quantity,
+  //         'frequency': medicine.frequency,
+  //         'duration': medicine.duration,
+  //         'meal': medicine.meal,
+  //       }),
+  //     );
+
+  //     if (response.statusCode != 200) {
+  //       showError('Failed to save schedule', context);
+  //     }
+  //   } catch (e) {
+  //     showError('Failed to connect to server: $e', context);
+  //   }
+  // }
+
   Future<void> _deleteSchedule(MedicineInfo medicine) async {
     setState(() {
       _isLoading = true;
@@ -67,7 +99,7 @@ class SchedulesPageState extends State<SchedulesPage> {
         headers: {'Content-Type': 'application/json'},
         body: jsonEncode({
           'operation': 'delete',
-          'name': medicine.name,
+          'id': medicine.id,
         }),
       );
 
@@ -79,7 +111,7 @@ class SchedulesPageState extends State<SchedulesPage> {
     } finally {
       setState(() {
         _isLoading = false;
-        fetchSchedules();
+        _fetchSchedules();
       });
     }
   }
@@ -96,9 +128,11 @@ class SchedulesPageState extends State<SchedulesPage> {
           Navigator.push(
             context,
             MaterialPageRoute(
-              builder: (context) => EditSchedulePage(),
+              builder: (context) => EditSchedulePage(
+                isSave: true,
+              ),
             ),
-          ).then((_) => fetchSchedules());
+          ).then((_) => _fetchSchedules());
         },
         child: Icon(Icons.add),
       ),
@@ -141,7 +175,7 @@ class SchedulesPageState extends State<SchedulesPage> {
                 IconButton(
                   icon: Icon(Icons.delete),
                   onPressed: () {
-                    _deleteSchedule(schedule);
+                    _deleteSchedule(schedule,);
                   },
                 ),
                 IconButton(
@@ -150,10 +184,10 @@ class SchedulesPageState extends State<SchedulesPage> {
                     Navigator.push(
                       context,
                       MaterialPageRoute(
-                        builder: (context) =>
-                            EditSchedulePage(medicineInfo: schedule),
+                        builder: (context) => EditSchedulePage(
+                            medicineInfo: schedule, isSave: true),
                       ),
-                    ).then((_) => fetchSchedules());
+                    ).then((_) => _fetchSchedules());
                   },
                 ),
               ],
@@ -167,8 +201,9 @@ class SchedulesPageState extends State<SchedulesPage> {
 
 class EditSchedulePage extends StatefulWidget {
   final MedicineInfo? medicineInfo;
+  final bool isSave;
 
-  const EditSchedulePage({super.key, this.medicineInfo});
+  const EditSchedulePage({super.key, this.medicineInfo, required this.isSave});
 
   @override
   // ignore: library_private_types_in_public_api
@@ -208,30 +243,15 @@ class EditSchedulePageState extends State<EditSchedulePage> {
     super.dispose();
   }
 
-  Future<void> _saveSchedule() async {
-    String url = '${getLink()}/schedules'; // Replace with your server's IP
-
-    // showError('Failed to save schedule', context);
-    try {
-      var response = await http.post(
-        Uri.parse(url),
-        headers: {'Content-Type': 'application/json'},
-        body: jsonEncode({
-          'operation': 'save',
-          'name': _nameController.text,
-          'quantity': _quantityController.text,
-          'frequency': _frequencyController.text,
-          'duration': _durationController.text,
-          'meal': _mealController.text,
-        }),
-      );
-
-      if (response.statusCode != 200) {
-        showError('Failed to save schedule', context);
-      }
-    } catch (e) {
-      showError('Failed to connect to server: $e', context);
-    }
+  MedicineInfo fetchChanges() {
+    return MedicineInfo(
+      id: widget.medicineInfo == null ? 'x0' : widget.medicineInfo!.id,
+      name: _nameController.text,
+      quantity: _quantityController.text,
+      frequency: _frequencyController.text,
+      duration: _durationController.text,
+      meal: _mealController.text,
+    );
   }
 
   @override
@@ -275,16 +295,20 @@ class EditSchedulePageState extends State<EditSchedulePage> {
             SizedBox(height: 20),
             ElevatedButton(
               onPressed: () {
-                _saveSchedule();
-                Navigator.of(context).pop(
-                  MedicineInfo(
-                    name: _nameController.text,
-                    quantity: _quantityController.text,
-                    frequency: _frequencyController.text,
-                    duration: _durationController.text,
-                    meal: _mealController.text,
-                  )
-                );
+                if (widget.isSave) {
+                  if (widget.medicineInfo == null) {
+                    saveSchedule(
+                      fetchChanges(),
+                      context,
+                    );
+                  } else {
+                    editSchedule(
+                      fetchChanges(),
+                      context,
+                    );
+                  }
+                }
+                Navigator.of(context).pop(fetchChanges());
               },
               child: Text(widget.medicineInfo == null
                   ? 'Save Schedule'

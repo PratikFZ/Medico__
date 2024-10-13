@@ -1,3 +1,5 @@
+import random
+import string
 import spacy
 from spacy.tokens import Span
 import pandas as pd
@@ -8,8 +10,8 @@ import json
 
 @dataclass
 class MedicineInfo:
-    # _id: int = "x0"
     name: str
+    id: str = ""
     quantity: str = ""
     duration: str = ""
     meal: str = "anytime"
@@ -32,6 +34,8 @@ class MedicineInfo:
             'duration': self.duration,
             'meal': self.meal,
         })
+    def genId() -> str:
+        return ''.join(random.choices(string.ascii_letters,k=7))
 
 
 class Medico_:
@@ -74,7 +78,8 @@ class Medico_:
             quantity=match[1] if match[1] else '',
             duration=match[2] if match[2] else '',
             meal=match[3] if match[3] else 'anytime',
-            frequency=match[4] if match[4] else ''
+            frequency=match[4] if match[4] else '',
+            id=MedicineInfo.genId(),
         ) for match in matches]
 
     def _create_nlp_patterns(self, medicine_names: List[str]) -> List[Dict]:
@@ -97,7 +102,7 @@ class Medico_:
         self.ruler.add_patterns(self._create_nlp_patterns(medicine_names))
         doc = self.nlp(self._preprocess_text())
 
-        medicine_details: Dict[str, MedicineInfo] = {med.lower(): MedicineInfo(name=med) for med in medicine_names}
+        medicine_details: Dict[str, MedicineInfo] = {med.lower(): MedicineInfo(name=med, id=MedicineInfo.genId()) for med in medicine_names}
 
         current_medicine = None
         for ent in doc.ents:
@@ -136,4 +141,4 @@ if __name__ == "__main__":
     medico = Medico_(text)
     results = medico.main()
     for result in results:
-        print(result.toJson())
+        print(result)

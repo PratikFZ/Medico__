@@ -1,3 +1,4 @@
+import uuid
 from flask import Flask, request, jsonify, send_file
 from flask_cors import CORS
 from gtts import gTTS
@@ -6,10 +7,9 @@ import pytesseract
 import logging
 from PIL import Image
 import io
-from lib._medico import Medico_
+from lib._medico import Medico_, MedicineInfo
 from pymongo import MongoClient
 from bson import ObjectId
-from apscheduler.schedulers.background import BackgroundScheduler
 from datetime import datetime, timedelta
 
 app = Flask(__name__)
@@ -21,9 +21,7 @@ client = MongoClient('mongodb://localhost:27017/')
 db = client['medico_db']
 schedules_collection = db['schedules']
 
-# Scheduler setup
-scheduler = BackgroundScheduler()
-scheduler.start()
+
 
 def play_announcement(medicine_name, dosage):
     # This function would trigger the audio play on the device
@@ -59,15 +57,15 @@ def process_image():
         result = [med.__dict__ for med in medicine_details if med.name]
 
         # Save schedules to MongoDB
-        for med in result:
-            schedule_id = schedules_collection.insert_one({
-                'name': med['name'],
-                'quantity': med['quantity'],
-                'frequency': med['frequency'],
-                'duration': med['duration'],
-                'meal': med['meal'],
-                'created_at': datetime.now()
-            }).inserted_id
+        # for med in result:
+        #     schedule_id = schedules_collection.insert_one({
+        #         'id': med['id'],
+        #         'name': med['name'],
+        #         'quantity': med['quantity'],
+        #         'frequency': med['frequency'],
+        #         'duration': med['duration'],
+        #         'meal': med['meal'],
+        #     })
 
         return jsonify({'medicine_details': result, 'extracted_text': extracted_text}), 200
 
@@ -84,29 +82,29 @@ def get_schedules():
     else:
         data = request.json
         if str(data.get("operation")) == "delete":
-            medicine_name =data.get("name")
-            schedules_collection.delete_one( { 'name': medicine_name})
+            medicine_id =data.get("id")
+            schedules_collection.delete_one( { 'id': medicine_id})
         
         elif str(data.get("operation")) == "save":
             schedules_collection.insert_one({
+                'id': MedicineInfo.genId(),
                 'name': data.get("name"),
                 'quantity': data['quantity'],
                 'frequency': data['frequency'],
                 'duration': data['duration'],
                 'meal': data['meal'],
-                'created_at': datetime.now()
-            }).inserted_id
+            })
 
         elif str(data.get("operation")) == "edit":
             schedules_collection.update_one(
-                { '_id': data.get('_id') }, 
-                {
+                { 'id': data.get('id') }, 
+                { "$set": {
                     '$name': data.get("name"),
                     '$quantity': data['quantity'],
                     '$frequency': data['frequency'],
                     '$duration': data['duration'],
                     '$meal': data['meal'],
-                    '$created_at': datetime.now()
+                  }
                 },
             )
         return "Medicine is deleted", 200
