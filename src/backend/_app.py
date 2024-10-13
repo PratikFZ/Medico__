@@ -99,11 +99,11 @@ def get_schedules():
             schedules_collection.update_one(
                 { 'id': data.get('id') }, 
                 { "$set": {
-                    '$name': data.get("name"),
-                    '$quantity': data['quantity'],
-                    '$frequency': data['frequency'],
-                    '$duration': data['duration'],
-                    '$meal': data['meal'],
+                    'name': data.get("name"),
+                    'quantity': data['quantity'],
+                    'frequency': data['frequency'],
+                    'duration': data['duration'],
+                    'meal': data['meal'],
                   }
                 },
             )

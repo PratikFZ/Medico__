@@ -26,9 +26,24 @@ class _MedicineRecognitionPageState extends State<MedicineRecognitionPage> {
   String _extractedText = "";
   List<MedicineInfo> _medicineDetails = [];
 
-  Future<void> _pickImage() async {
+  Future<void> _pickImageFromGal() async {
     final XFile? pickedFile =
         await _picker.pickImage(source: ImageSource.gallery);
+
+    if (pickedFile != null) {
+      setState(() {
+        _image = File(pickedFile.path);
+        _extractedText = "";
+        _medicineDetails = [];
+      });
+
+      await _processImage(_image!);
+    }
+  }
+
+  Future<void> _pickImageFromCam() async {
+    final XFile? pickedFile =
+        await _picker.pickImage(source: ImageSource.camera);
 
     if (pickedFile != null) {
       setState(() {
@@ -104,37 +119,33 @@ class _MedicineRecognitionPageState extends State<MedicineRecognitionPage> {
                     Text('Frequency: ${med.frequency}'),
                 ],
               ),
-              trailing: Row( 
-                mainAxisSize: MainAxisSize.min, 
-                children: <Widget>[
-                  IconButton(
-                    icon: Icon(Icons.edit),
-                    onPressed: () async {
-                      final MedicineInfo? save = await Navigator.push(
-                        context,
-                        MaterialPageRoute(
-                          builder: (context) => EditSchedulePage(
-                            medicineInfo: med,
-                            isSave: false,
-                          ),
+              trailing: Row(mainAxisSize: MainAxisSize.min, children: <Widget>[
+                IconButton(
+                  icon: Icon(Icons.edit),
+                  onPressed: () async {
+                    final MedicineInfo? save = await Navigator.push(
+                      context,
+                      MaterialPageRoute(
+                        builder: (context) => EditSchedulePage(
+                          medicineInfo: med,
+                          isSave: false,
                         ),
-                      );
-                      if ( save != null){
-                        setState(() {
+                      ),
+                    );
+                    if (save != null) {
+                      setState(() {
                         _medicineDetails[index] = save;
-                        });
-                      }
-                    },
-                  ),
-                  IconButton(
-                    onPressed: () async {
-                      saveSchedule(med, context);
-                    },
-                    icon: Icon(Icons.save),
-                  )
-                ]
-              )
-            ),
+                      });
+                    }
+                  },
+                ),
+                IconButton(
+                  onPressed: () async {
+                    saveSchedule(med, context);
+                  },
+                  icon: Icon(Icons.save),
+                )
+              ])),
         );
       },
     );
@@ -149,6 +160,7 @@ class _MedicineRecognitionPageState extends State<MedicineRecognitionPage> {
       body: SingleChildScrollView(
         padding: EdgeInsets.all(16.0),
         child: Column(
+          mainAxisAlignment: MainAxisAlignment.center,
           children: [
             _image == null
                 ? Text('No image selected.')
@@ -157,10 +169,21 @@ class _MedicineRecognitionPageState extends State<MedicineRecognitionPage> {
                     height: 200,
                   ),
             SizedBox(height: 20),
-            ElevatedButton.icon(
-              onPressed: _pickImage,
-              icon: Icon(Icons.image),
-              label: Text('Pick Image'),
+            Row(
+              mainAxisAlignment: MainAxisAlignment.center,
+              mainAxisSize: MainAxisSize.min,
+              children: <Widget> [
+                ElevatedButton.icon(
+                  onPressed: _pickImageFromGal,
+                  icon: Icon(Icons.image),
+                  label: Text('Pick Image'),
+                ),
+                ElevatedButton.icon(
+                  onPressed: _pickImageFromCam,
+                  icon: Icon(Icons.camera),
+                  label: Text('Pick Image'),
+                ),
+              ]
             ),
             SizedBox(height: 20),
             _isLoading

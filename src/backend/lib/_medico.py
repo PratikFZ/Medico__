@@ -18,7 +18,7 @@ class MedicineInfo:
     frequency: str = ""
 
     def fromJson( self, data ) -> None:
-        # self._id = data.get("_id")
+        self.id = data.get("id")
         self.name = data.get("name")
         self.quantity = data.get("quantity")
         self.duration = data.get("duration")
@@ -27,7 +27,7 @@ class MedicineInfo:
     
     def toJson( self) -> str:
         return json.dumps({
-            # '_id': self._id,
+            'id': self.id,
             'name': self.name,
             'quantity': self.quantity,
             'frequency': self.frequency,
