@@ -1,4 +1,5 @@
 import uuid
+import zipfile
 from flask import Flask, request, jsonify, send_file
 from flask_cors import CORS
 from gtts import gTTS
@@ -114,33 +115,44 @@ def get_schedules():
 def generate_audio():
     try:
         data = request.json
-        medicine_name = data.get("name")
-        dosage = data.get("dosage")
-
-        if not medicine_name or not dosage:
-            return jsonify({"error": "MedicineName and dosage are required"}), 400
-
-        text = f"Take {dosage} of {medicine_name}"
+        medicines = data.get("medicines")
         
-        try:
-            tts = gTTS(text)
-            # file_path = os.path.join("src/backend/assets",f"{medicine_name}_{dosage}.mp3")
-            file_path = f"/home/pratik/My Projects/Medico_proj/src/backend/assets/{medicine_name}_{dosage}.mp3"
-            tts.save(file_path)
-        except Exception as e:
-            logging.error("TTS generation error: ", exc_info=True)
-            return jsonify({"error": f"Text-to-Speech generation failed: {str(e)}"}), 500
-        
-        if not os.path.exists(file_path):
-            logging.error("TTS generation error: ", exc_info=True)
-            return jsonify({"error": "MP3 file not found"}), 404
+        if not medicines or not isinstance(medicines, list):
+            return jsonify({"error": "Invalid or missing medicines data"}), 400
 
-        return send_file(file_path, as_attachment=True)
+        zip_buffer = io.BytesIO()
+        with zipfile.ZipFile(zip_buffer, 'w', zipfile.ZIP_DEFLATED) as zip_file:
+            for medicine in medicines:
+                name = medicine.get("name")
+                quantity = medicine.get("quantity", "")
+                
+                if not name:
+                    continue  # Skip if name is missing
+                
+                text = f"Take {quantity} of {name}" if quantity else f"Take {name}"
+                
+                try:
+                    tts = gTTS(text)
+                    audio_buffer = io.BytesIO()
+                    tts.write_to_fp(audio_buffer)
+                    audio_buffer.seek(0)
+                    
+                    file_name = f"{name}_{quantity}.mp3" if quantity else f"{name}.mp3"
+                    zip_file.writestr(file_name, audio_buffer.getvalue())
+                except Exception as e:
+                    logging.error(f"TTS generation error for {name}: {str(e)}", exc_info=True)
+        
+        zip_buffer.seek(0)
+        return send_file(
+            zip_buffer,
+            mimetype='application/zip',
+            as_attachment=True,
+            download_name='tts_files.zip'
+        )
 
     except Exception as e:
         logging.error("Unexpected error: ", exc_info=True)
         return jsonify({"error": f"An unexpected error occurred: {str(e)}"}), 500
-
 
 if __name__ == '__main__':
     # Ensure Flask listens on all interfaces to be accessible on the network

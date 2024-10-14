@@ -6,6 +6,7 @@ import 'package:flutter/material.dart';
 import 'package:medico/activities/MedicineInfo';
 import 'package:medico/functions/function.dart';
 import 'package:http/http.dart' as http;
+import 'package:medico/functions/genTTS.dart';
 
 class SchedulesPage extends StatefulWidget {
   const SchedulesPage({super.key});
@@ -47,6 +48,7 @@ class SchedulesPageState extends State<SchedulesPage> {
               .map((item) => MedicineInfo.fromJson(item))
               .toList();
         });
+        await generateTTS(_schedules, context);
       } else {
         showError('Fails to load data', context);
       }
@@ -59,32 +61,6 @@ class SchedulesPageState extends State<SchedulesPage> {
       });
     }
   }
-
-  // Future<void> saveSchedule(MedicineInfo medicine) async {
-  //   String url = '${getLink()}/schedules'; // Replace with your server's IP
-
-  //   // showError('Failed to save schedule', context);
-  //   try {
-  //     var response = await http.post(
-  //       Uri.parse(url),
-  //       headers: {'Content-Type': 'application/json'},
-  //       body: jsonEncode({
-  //         'operation': 'save',
-  //         'name': medicine.name,
-  //         'quantity': medicine.quantity,
-  //         'frequency': medicine.frequency,
-  //         'duration': medicine.duration,
-  //         'meal': medicine.meal,
-  //       }),
-  //     );
-
-  //     if (response.statusCode != 200) {
-  //       showError('Failed to save schedule', context);
-  //     }
-  //   } catch (e) {
-  //     showError('Failed to connect to server: $e', context);
-  //   }
-  // }
 
   Future<void> _deleteSchedule(MedicineInfo medicine) async {
     setState(() {
@@ -173,9 +149,17 @@ class SchedulesPageState extends State<SchedulesPage> {
               mainAxisSize: MainAxisSize.min,
               children: <Widget>[
                 IconButton(
+                  onPressed: () {
+                    playTTS(schedule, context);
+                  },
+                  icon: Icon(Icons.music_note),
+                ),
+                IconButton(
                   icon: Icon(Icons.delete),
                   onPressed: () {
-                    _deleteSchedule(schedule,);
+                    _deleteSchedule(
+                      schedule,
+                    );
                   },
                 ),
                 IconButton(

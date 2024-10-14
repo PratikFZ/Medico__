@@ -7,7 +7,7 @@ import 'package:medico/activities/MedicineInfo';
 import 'package:http/http.dart' as http;
 
 String getLink() {
-  String localhost = 'http://192.168.1.109:5000';
+  String localhost = 'https://sensible-mastiff-intent.ngrok-free.app';
   return localhost;
 }
 
