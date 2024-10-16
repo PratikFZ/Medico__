@@ -47,7 +47,6 @@ dependencies:
   just_audio: ^0.9.41
   archive: ^3.6.1
   flutter_launcher_icons: ^0.13.1
-  flutter_native_timezone: ^2.0.0
 
 flutter_launcher_icons:
   android: "launcher_icon"
@@ -85,7 +84,7 @@ dev_dependencies:
 # The following section is specific to Flutter packages.
 flutter_native_splash:
   color: "#42a5f5"
-  image: /home/pratik/My Projects/Medico_proj/src/frontend/assets/splash.jpg
+  image: "/home/pratik/My Projects/Medico_proj/src/frontend/assets/splash.jpg"
 
 flutter:
 

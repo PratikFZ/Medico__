@@ -54,7 +54,6 @@ class _SplashScreenState extends State<SplashScreen> {
             // Replace with your app logo
             Image.asset('/home/pratik/My Projects/Medico_proj/src/frontend/assets/splash.jpg', height: 320),
             SizedBox(height: 50),
-            CircularProgressIndicator(),
           ],
         ),
       ),
@@ -68,9 +67,17 @@ class HomePage extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      appBar: AppBar(
-        title: Text('GenHealthHub Dashboard'),
-        backgroundColor: const Color.fromRGBO(66, 160, 197, 1),
+      appBar: PreferredSize(
+        preferredSize: Size.fromHeight(100.0),
+        child: AppBar(
+          title: Text('GenHealthHub Dashboard'),
+          backgroundColor: const Color.fromARGB(255, 35, 227, 153),
+          shape: RoundedRectangleBorder(
+            borderRadius: BorderRadius.vertical(
+              bottom: Radius.circular(30),
+            ),
+          ),
+        )
       ),
       body: Center(
         child: Column(
