@@ -95,8 +95,17 @@ class SchedulesPageState extends State<SchedulesPage> {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      appBar: AppBar(
-        title: Text('Schedules'),
+      appBar: PreferredSize(
+        preferredSize: Size.fromHeight(100.0),
+        child: AppBar(
+          title: Text('Schedules'),
+          backgroundColor: const Color.fromARGB(255, 35, 227, 153),
+          shape: RoundedRectangleBorder(
+            borderRadius: BorderRadius.vertical(
+              bottom: Radius.circular(30),
+            ),
+          ),
+        )
       ),
       body: _buildBody(),
       floatingActionButton: FloatingActionButton(
