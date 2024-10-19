@@ -29,9 +29,6 @@ def play_announcement(medicine_name, dosage):
     # For now, we'll just print a message
     print(f"Playing announcement for {medicine_name}: {dosage}")
 
-app = Flask(__name__)
-CORS(app)  # Enable CORS for all routes
-logging.basicConfig(level=logging.ERROR)
 
 @app.route('/ping', methods=['GET'])
 def check():
@@ -123,6 +120,7 @@ def generate_audio():
         zip_buffer = io.BytesIO()
         with zipfile.ZipFile(zip_buffer, 'w', zipfile.ZIP_DEFLATED) as zip_file:
             for medicine in medicines:
+                id = medicine.get("id")
                 name = medicine.get("name")
                 quantity = medicine.get("quantity", "")
                 
@@ -137,7 +135,7 @@ def generate_audio():
                     tts.write_to_fp(audio_buffer)
                     audio_buffer.seek(0)
                     
-                    file_name = f"{name}_{quantity}.mp3" if quantity else f"{name}.mp3"
+                    file_name = f"{id}.mp3"
                     zip_file.writestr(file_name, audio_buffer.getvalue())
                 except Exception as e:
                     logging.error(f"TTS generation error for {name}: {str(e)}", exc_info=True)

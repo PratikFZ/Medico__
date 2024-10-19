@@ -1,10 +1,18 @@
 // ignore_for_file: library_private_types_in_public_api, use_build_context_synchronously
 
+import 'dart:async';
+
+import 'package:alarm/alarm.dart';
 import 'package:flutter/material.dart';
+import 'package:medico/activities/AlaramRingPage.dart';
 import 'package:medico/activities/MedicineRecognitionPage.dart';
 import 'package:medico/activities/SchedulesPage.dart';
+import 'package:medico/functions/alarm.dart';
+// import 'package:medico/functions/notify.dart';
 
-void main() {
+Future<void> main() async {
+  // WidgetsFlutterBinding.ensureInitialized();
+  // await NotificationService().init();
   runApp(MyApp());
 }
 
@@ -34,7 +42,7 @@ class _SplashScreenState extends State<SplashScreen> {
   @override
   void initState() {
     super.initState();
-    // Add any initialization logic here
+    // Add initialization logic here
     _navigateToHome();
   }
 
@@ -51,8 +59,9 @@ class _SplashScreenState extends State<SplashScreen> {
         child: Column(
           mainAxisAlignment: MainAxisAlignment.center,
           children: [
-            // Replace with your app logo
-            Image.asset('/home/pratik/My Projects/Medico_proj/src/frontend/assets/splash.jpg', height: 320),
+            Image.asset(
+                '/home/pratik/My Projects/Medico_proj/src/frontend/assets/splash.jpg',
+                height: 320),
             SizedBox(height: 50),
           ],
         ),
@@ -61,24 +70,70 @@ class _SplashScreenState extends State<SplashScreen> {
   }
 }
 
-class HomePage extends StatelessWidget {
+class HomePage extends StatefulWidget {
   const HomePage({super.key});
+
+  @override
+  _HomePageState createState() => _HomePageState();
+}
+
+class _HomePageState extends State<HomePage> {
+
+  late List<AlarmSettings>? alarms = [];
+
+  static StreamSubscription<AlarmSettings>? ringSubscription;
+  static StreamSubscription<int>? updateSubscription;
+
+  @override
+  void initState() {
+    super.initState();
+    initializeAlarms();
+    loadAlarms();
+    ringSubscription ??= Alarm.ringStream.stream.listen(navigateToRingScreen);
+    updateSubscription ??= Alarm.updateStream.stream.listen((_) {
+      loadAlarms();
+    });
+  }
+
+  void loadAlarms() {
+    setState(() {
+      alarms ??= Alarm.getAlarms();
+      alarms?.sort((a, b) => a.dateTime.isBefore(b.dateTime) ? 0 : 1);
+    });
+  }
+
+  Future<void> navigateToRingScreen(AlarmSettings alarmSettings) async {
+    await Navigator.push(
+      context,
+      MaterialPageRoute<void>(
+        builder: (context) =>
+            AlarmRingScreen(alarmSettings: alarmSettings),
+      ),
+    );
+    loadAlarms();
+  }
+
+  @override
+  void dispose() {
+    ringSubscription?.cancel();
+    updateSubscription?.cancel();
+    super.dispose();
+  }
 
   @override
   Widget build(BuildContext context) {
     return Scaffold(
       appBar: PreferredSize(
-        preferredSize: Size.fromHeight(100.0),
-        child: AppBar(
-          title: Text('GenHealthHub Dashboard'),
-          backgroundColor: const Color.fromARGB(255, 35, 227, 153),
-          shape: RoundedRectangleBorder(
-            borderRadius: BorderRadius.vertical(
-              bottom: Radius.circular(30),
+          preferredSize: Size.fromHeight(100.0),
+          child: AppBar(
+            title: Text('GenHealthHub Dashboard'),
+            backgroundColor: const Color.fromARGB(255, 35, 227, 153),
+            shape: RoundedRectangleBorder(
+              borderRadius: BorderRadius.vertical(
+                bottom: Radius.circular(30),
+              ),
             ),
-          ),
-        )
-      ),
+          )),
       body: Center(
         child: Column(
           mainAxisAlignment: MainAxisAlignment.center,

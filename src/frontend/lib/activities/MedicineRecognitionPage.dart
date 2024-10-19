@@ -141,7 +141,7 @@ class _MedicineRecognitionPageState extends State<MedicineRecognitionPage> {
                 ),
                 IconButton(
                   onPressed: () async {
-                    saveSchedule(med, context);
+                    saveScheduleLocally(med, context);
                   },
                   icon: Icon(Icons.save),
                 )

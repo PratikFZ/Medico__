@@ -2,11 +2,13 @@
 
 import 'dart:convert';
 
+// import 'package:alarm/alarm.dart';
 import 'package:flutter/material.dart';
 import 'package:medico/activities/MedicineInfo';
 import 'package:medico/functions/function.dart';
-import 'package:http/http.dart' as http;
+// import 'package:http/http.dart' as http;
 import 'package:medico/functions/genTTS.dart';
+import 'package:shared_preferences/shared_preferences.dart';
 
 class SchedulesPage extends StatefulWidget {
   const SchedulesPage({super.key});
@@ -17,96 +19,124 @@ class SchedulesPage extends StatefulWidget {
 }
 
 class SchedulesPageState extends State<SchedulesPage> {
-  List<MedicineInfo> _schedules = [];
   // ignore: prefer_final_fields
+  List<MedicineInfo> _schedules = [];
   bool _isLoading = false;
 
   @override
   void initState() {
     super.initState();
-    _fetchSchedules();
+    // _fetchSchedules();
+    _fetchSchedulesLocally(context);
+  }
+
+  // Future<void> _fetchSchedulesLocally( BuildContext context ) async {
+  //     _schedules = await fetchSchedules(context) ;
+  // }
+  Future<void> _fetchSchedulesLocally(BuildContext context) async {
+    setState(() {
+      _isLoading = true;
+      _schedules.clear();
+    });
+    try {
+      final prefs = await SharedPreferences.getInstance();
+      final keys = prefs.getKeys();
+      for (String key in keys) {
+        if (key.startsWith('medicine_')) {
+          final String? medicineJson = prefs.getString(key);
+          if (medicineJson != null) {
+            final data = jsonDecode(medicineJson);
+            _schedules.add(MedicineInfo.fromJson(data));
+          }
+        }
+      }
+
+      await generateTTS(_schedules, context);
+    } catch (e) {
+      showError('Failed to fetch schedules locally: $e', context);
+    } finally {
+      setState(() {
+        _isLoading = false;
+      });
+    }
   }
 
   // Future<void> _fetchSchedules() async {
-  //     _schedules = await fetchSchedules(context) ;
+  //   setState(() {
+  //     _isLoading = true;
+  //   });
+
+  //   String url = '${getLink()}/schedules'; // Update with your server IP
+
+  //   try {
+  //     var response = await http.get(Uri.parse(url));
+
+  //     if (response.statusCode == 200) {
+  //       var data = jsonDecode(response.body);
+  //       setState(() {
+  //         _schedules = (data as List)
+  //             .map((item) => MedicineInfo.fromJson(item))
+  //             .toList();
+  //       });
+  //       await generateTTS(_schedules, context);
+  //     } else {
+  //       showError('Fails to load data', context);
+  //     }
+  //   } catch (e) {
+  //     showError('Failed to connect to server: $e', context);
+  //     // Navigator.of(context).pop();
+  //   } finally {
+  //     setState(() {
+  //       _isLoading = false;
+  //     });
+  //   }
   // }
 
-  Future<void> _fetchSchedules() async {
-    setState(() {
-      _isLoading = true;
-    });
+  // // ignore: unused_element
+  // Future<void> _deleteSchedule(MedicineInfo medicine) async {
+  //   setState(() {
+  //     _isLoading = true;
+  //   });
 
-    String url = '${getLink()}/schedules'; // Update with your server IP
+  //   String url = '${getLink()}/schedules'; // Replace with your server's IP
 
-    try {
-      var response = await http.get(Uri.parse(url));
+  //   try {
+  //     var response = await http.post(
+  //       Uri.parse(url),
+  //       headers: {'Content-Type': 'application/json'},
+  //       body: jsonEncode({
+  //         'operation': 'delete',
+  //         'id': medicine.id,
+  //       }),
+  //     );
 
-      if (response.statusCode == 200) {
-        var data = jsonDecode(response.body);
-        setState(() {
-          _schedules = (data as List)
-              .map((item) => MedicineInfo.fromJson(item))
-              .toList();
-        });
-        await generateTTS(_schedules, context);
-      } else {
-        showError('Fails to load data', context);
-      }
-    } catch (e) {
-      showError('Failed to connect to server: $e', context);
-      // Navigator.of(context).pop();
-    } finally {
-      setState(() {
-        _isLoading = false;
-      });
-    }
-  }
-
-  Future<void> _deleteSchedule(MedicineInfo medicine) async {
-    setState(() {
-      _isLoading = true;
-    });
-
-    String url = '${getLink()}/schedules'; // Replace with your server's IP
-
-    try {
-      var response = await http.post(
-        Uri.parse(url),
-        headers: {'Content-Type': 'application/json'},
-        body: jsonEncode({
-          'operation': 'delete',
-          'id': medicine.id,
-        }),
-      );
-
-      if (response.statusCode != 200) {
-        showError('Failed to delete the entry', context);
-      }
-    } catch (e) {
-      showError('Failed to connect to server: $e', context);
-    } finally {
-      setState(() {
-        _isLoading = false;
-        _fetchSchedules();
-      });
-    }
-  }
+  //     if (response.statusCode != 200) {
+  //       showError('Failed to delete the entry', context);
+  //     }
+  //   } catch (e) {
+  //     showError('Failed to connect to server: $e', context);
+  //   } finally {
+  //     setState(() {
+  //       _isLoading = false;
+  //       _fetchSchedules();
+  //     });
+  //   }
+  // }
 
   @override
   Widget build(BuildContext context) {
     return Scaffold(
       appBar: PreferredSize(
-        preferredSize: Size.fromHeight(100.0),
-        child: AppBar(
-          title: Text('Schedules'),
-          backgroundColor: const Color.fromARGB(255, 35, 227, 153),
-          shape: RoundedRectangleBorder(
-            borderRadius: BorderRadius.vertical(
-              bottom: Radius.circular(30),
+          preferredSize: Size.fromHeight(100.0),
+          child: AppBar(
+            title: Text('Schedules'),
+            backgroundColor: const Color.fromARGB(255, 35, 227, 153),
+            shape: RoundedRectangleBorder(
+              borderRadius: BorderRadius.vertical(
+                bottom: Radius.circular(30),
+              ),
             ),
-          ),
-        )
-      ),
+          )),
       body: _buildBody(),
       floatingActionButton: FloatingActionButton(
         onPressed: () {
@@ -117,7 +147,7 @@ class SchedulesPageState extends State<SchedulesPage> {
                 isSave: true,
               ),
             ),
-          ).then((_) => _fetchSchedules());
+          ).then((_) => _fetchSchedulesLocally(context));
         },
         child: Icon(Icons.add),
       ),
@@ -165,10 +195,11 @@ class SchedulesPageState extends State<SchedulesPage> {
                 ),
                 IconButton(
                   icon: Icon(Icons.delete),
-                  onPressed: () {
-                    _deleteSchedule(
-                      schedule,
-                    );
+                  onPressed: () async {
+                    // _deleteSchedule(schedule);
+                    deleteScheduleLocally(schedule, context);
+                    // await Future.delayed(Duration(seconds: 1), () {});
+                    _fetchSchedulesLocally(context);
                   },
                 ),
                 IconButton(
@@ -180,7 +211,7 @@ class SchedulesPageState extends State<SchedulesPage> {
                         builder: (context) => EditSchedulePage(
                             medicineInfo: schedule, isSave: true),
                       ),
-                    ).then((_) => _fetchSchedules());
+                    ).then((_) => fetchSchedulesLocally(context));
                   },
                 ),
               ],
@@ -290,12 +321,12 @@ class EditSchedulePageState extends State<EditSchedulePage> {
               onPressed: () {
                 if (widget.isSave) {
                   if (widget.medicineInfo == null) {
-                    saveSchedule(
+                    saveScheduleLocally(
                       fetchChanges(),
                       context,
                     );
                   } else {
-                    editSchedule(
+                    editScheduleLocally(
                       fetchChanges(),
                       context,
                     );
