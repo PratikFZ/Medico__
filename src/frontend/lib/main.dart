@@ -60,7 +60,7 @@ class _SplashScreenState extends State<SplashScreen> {
           mainAxisAlignment: MainAxisAlignment.center,
           children: [
             Image.asset(
-                '/home/pratik/My Projects/Medico_proj/src/frontend/assets/splash.jpg',
+                '/home/pratikfz/My project/Medico__/src/frontend/assets/splash.jpg',
                 height: 320),
             SizedBox(height: 50),
           ],
