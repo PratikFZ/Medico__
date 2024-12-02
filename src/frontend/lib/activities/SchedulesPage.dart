@@ -51,7 +51,7 @@ class SchedulesPageState extends State<SchedulesPage> {
         }
       }
 
-      await generateTTS(_schedules, context);
+      // await generateTTS(_schedules, context);
     } catch (e) {
       showError('Failed to fetch schedules locally: $e', context);
     } finally {

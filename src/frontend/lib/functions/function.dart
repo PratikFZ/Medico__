@@ -9,7 +9,7 @@ import 'package:medico/activities/MedicineInfo';
 import 'package:http/http.dart' as http;
 
 String getLink() {
-  String localhost = ' http://192.168.1.109:5000';
+  String localhost = 'https://sensible-mastiff-intent.ngrok-free.app';
   return localhost;
 }
 
@@ -141,6 +141,7 @@ Future<List<MedicineInfo>> fetchSchedules(BuildContext context) async {
 
 Future<void> saveScheduleLocally(
     MedicineInfo medicine, BuildContext context) async {
+  List<MedicineInfo> _schedules = [medicine];
   try {
     final prefs = await SharedPreferences.getInstance();
     final String medicineJson = jsonEncode(toJson(medicine));
@@ -149,6 +150,7 @@ Future<void> saveScheduleLocally(
     ScaffoldMessenger.of(context).showSnackBar(
       SnackBar(content: Text('Schedule saved successfully')),
     );
+    await generateTTS(_schedules, context);
     setAlarm(
         id: medicine.id,
         dateTime: DateTime.now().add(Duration(minutes: 1)),
