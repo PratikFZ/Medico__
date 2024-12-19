@@ -17,17 +17,17 @@ app = Flask(__name__)
 CORS(app)
 logging.basicConfig(level=logging.ERROR)
 
-# MongoDB setup
-client = MongoClient('mongodb://localhost:27017/')
-db = client['medico_db']
-schedules_collection = db['schedules']
+# # MongoDB setup
+# client = MongoClient('mongodb://localhost:27017/')
+# db = client['medico_db']
+# schedules_collection = db['schedules']
 
 
 
-def play_announcement(medicine_name, dosage):
-    # This function would trigger the audio play on the device
-    # For now, we'll just print a message
-    print(f"Playing announcement for {medicine_name}: {dosage}")
+# def play_announcement(medicine_name, dosage):
+#     # This function would trigger the audio play on the device
+#     # For now, we'll just print a message
+#     print(f"Playing announcement for {medicine_name}: {dosage}")
 
 
 @app.route('/ping', methods=['GET'])
@@ -65,47 +65,48 @@ def process_image():
         #         'meal': med['meal'],
         #     })
 
+        print( result )
         return jsonify({'medicine_details': result, 'extracted_text': extracted_text}), 200
 
     except Exception as e:
         return jsonify({'error': str(e)}), 500
 
-@app.route('/schedules', methods=['GET', 'POST'])
-def get_schedules():
-    if request.method == 'GET' :
-        schedules = list(schedules_collection.find())
-        for schedule in schedules:
-            schedule['_id'] = str(schedule['_id'])
-        return jsonify(schedules), 200
-    else:
-        data = request.json
-        if str(data.get("operation")) == "delete":
-            medicine_id =data.get("id")
-            schedules_collection.delete_one( { 'id': medicine_id})
+# @app.route('/schedules', methods=['GET', 'POST'])
+# def get_schedules():
+#     if request.method == 'GET' :
+#         schedules = list(schedules_collection.find())
+#         for schedule in schedules:
+#             schedule['_id'] = str(schedule['_id'])
+#         return jsonify(schedules), 200
+#     else:
+#         data = request.json
+#         if str(data.get("operation")) == "delete":
+#             medicine_id =data.get("id")
+#             schedules_collection.delete_one( { 'id': medicine_id})
         
-        elif str(data.get("operation")) == "save":
-            schedules_collection.insert_one({
-                'id': MedicineInfo.genId(),
-                'name': data.get("name"),
-                'quantity': data['quantity'],
-                'frequency': data['frequency'],
-                'duration': data['duration'],
-                'meal': data['meal'],
-            })
+#         elif str(data.get("operation")) == "save":
+#             schedules_collection.insert_one({
+#                 'id': MedicineInfo.genId(),
+#                 'name': data.get("name"),
+#                 'quantity': data['quantity'],
+#                 'frequency': data['frequency'],
+#                 'duration': data['duration'],
+#                 'meal': data['meal'],
+#             })
 
-        elif str(data.get("operation")) == "edit":
-            schedules_collection.update_one(
-                { 'id': data.get('id') }, 
-                { "$set": {
-                    'name': data.get("name"),
-                    'quantity': data['quantity'],
-                    'frequency': data['frequency'],
-                    'duration': data['duration'],
-                    'meal': data['meal'],
-                  }
-                },
-            )
-        return "Medicine is deleted", 200
+#         elif str(data.get("operation")) == "edit":
+#             schedules_collection.update_one(
+#                 { 'id': data.get('id') }, 
+#                 { "$set": {
+#                     'name': data.get("name"),
+#                     'quantity': data['quantity'],
+#                     'frequency': data['frequency'],
+#                     'duration': data['duration'],
+#                     'meal': data['meal'],
+#                   }
+#                 },
+#             )
+#         return "Medicine is deleted", 200
             
 
 @app.route('/generate_audio', methods=['POST'])

@@ -5,8 +5,8 @@ import 'dart:io';
 import 'package:flutter/material.dart';
 import 'package:http/http.dart' as http;
 import 'package:audioplayers/audioplayers.dart';
-import 'package:medico/activities/MedicineInfo';
-import 'package:medico/functions/function.dart';
+import 'package:medico_/activities/MedicineInfo.dart';
+import 'package:medico_/functions/function.dart';
 import 'package:path_provider/path_provider.dart';
 import 'package:archive/archive.dart';
 

@@ -5,9 +5,9 @@ import 'package:image_picker/image_picker.dart';
 import 'dart:convert';
 import 'dart:io';
 import 'package:http/http.dart' as http;
-import 'package:medico/activities/MedicineInfo';
-import 'package:medico/activities/SchedulesPage.dart';
-import 'package:medico/functions/function.dart';
+import 'package:medico_/activities/MedicineInfo.dart';
+import 'package:medico_/activities/EditSchedule.dart';
+import 'package:medico_/functions/function.dart';
 
 class MedicineRecognitionPage extends StatefulWidget {
   const MedicineRecognitionPage({super.key});
@@ -154,65 +154,76 @@ class _MedicineRecognitionPageState extends State<MedicineRecognitionPage> {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      appBar: AppBar(
-        title: Text('Upload Prescription'),
-      ),
-      body: SingleChildScrollView(
-        padding: EdgeInsets.all(16.0),
-        child: Column(
-          mainAxisAlignment: MainAxisAlignment.center,
-          children: [
-            _image == null
-                ? Text('No image selected.')
-                : Image.file(
-                    _image!,
-                    height: 200,
-                  ),
-            SizedBox(height: 20),
-            Row(
-              mainAxisAlignment: MainAxisAlignment.center,
-              mainAxisSize: MainAxisSize.min,
-              children: <Widget> [
-                ElevatedButton.icon(
-                  onPressed: _pickImageFromGal,
-                  icon: Icon(Icons.image),
-                  label: Text('Pick Image'),
-                ),
-                ElevatedButton.icon(
-                  onPressed: _pickImageFromCam,
-                  icon: Icon(Icons.camera),
-                  label: Text('Pick Image'),
-                ),
-              ]
-            ),
-            SizedBox(height: 20),
-            _isLoading
-                ? CircularProgressIndicator()
-                : Column(
-                    crossAxisAlignment: CrossAxisAlignment.start,
-                    children: [
-                      // if (_extractedText.isNotEmpty) ...[
-                      //   Text(
-                      //     'Extracted Text:',
-                      //     style: TextStyle(
-                      //         fontWeight: FontWeight.bold, fontSize: 16),
-                      //   ),
-                      //   SizedBox(height: 8),
-                      //   Text(_extractedText),
-                      //   SizedBox(height: 20),
-                      // ],
-                      Text(
-                        'Medicine Details:',
-                        style: TextStyle(
-                            fontWeight: FontWeight.bold, fontSize: 16),
-                      ),
-                      SizedBox(height: 8),
-                      _buildMedicineList(),
-                    ],
-                  ),
-          ],
+        appBar: AppBar(
+          title: Text('Upload Prescription'),
         ),
-      ),
-    );
+        body: Center(
+          child: SingleChildScrollView(
+            padding: EdgeInsets.all(16.0),
+            child: Column(
+              mainAxisAlignment: MainAxisAlignment.center,
+              children: [
+                _image == null
+                    ? Text('No image selected.')
+                    : Image.file(
+                        _image!,
+                        height: 200,
+                      ),
+                const SizedBox(height: 20),
+                Row(
+                  mainAxisAlignment: MainAxisAlignment.center,
+                  mainAxisSize: MainAxisSize.min,
+                  crossAxisAlignment: CrossAxisAlignment.center,
+                  children: <Widget>[
+                    ElevatedButton.icon(
+                      onPressed: _pickImageFromGal,
+                      icon: const Icon(Icons.image),
+                      label: const Text('Gallery'),
+                      style: ElevatedButton.styleFrom(
+                        padding: const EdgeInsets.symmetric(
+                            horizontal: 16, vertical: 10),
+                      ),
+                    ),
+                    const SizedBox(width: 16), // Add space between buttons
+                    ElevatedButton.icon(
+                      onPressed: _pickImageFromCam,
+                      icon: const Icon(Icons.camera),
+                      label: const Text('Camera'),
+                      style: ElevatedButton.styleFrom(
+                        padding: const EdgeInsets.symmetric(
+                            horizontal: 16, vertical: 10),
+                      ),
+                    ),
+                  ],
+                ),
+                const SizedBox(height: 20),
+                _isLoading
+                    ? CircularProgressIndicator()
+                    : Column(
+                        crossAxisAlignment: CrossAxisAlignment.start,
+                        children: [
+                          // if (_extractedText.isNotEmpty) ...[
+                          //   Text(
+                          //     'Extracted Text:',
+                          //     style: TextStyle(
+                          //         fontWeight: FontWeight.bold, fontSize: 16),
+                          //   ),
+                          //   SizedBox(height: 8),
+                          //   Text(_extractedText),
+                          //   SizedBox(height: 20),
+                          // ],
+                          Text(
+                            'Medicine Details:',
+                            style: TextStyle(
+                                fontWeight: FontWeight.bold, fontSize: 16),
+                          ),
+                          SizedBox(height: 8),
+                          _buildMedicineList(),
+                        ],
+                      ),
+              ],
+            ),
+          ),
+        ));
   }
 }

@@ -5,8 +5,10 @@ from spacy.tokens import Span
 import pandas as pd
 import re
 from typing import List, Tuple, Dict, Optional
-from dataclasses import dataclass
+from dataclasses import dataclass, field
 import json
+from datetime import time
+
 
 @dataclass
 class MedicineInfo:
@@ -16,6 +18,7 @@ class MedicineInfo:
     duration: str = ""
     meal: str = "anytime"
     frequency: str = ""
+    schedules: List[Dict] = field(default_factory=list)
 
     def fromJson( self, data ) -> None:
         self.id = data.get("id")
@@ -33,6 +36,7 @@ class MedicineInfo:
             'frequency': self.frequency,
             'duration': self.duration,
             'meal': self.meal,
+            'schedules': [{"hour": t['hrs'], "minute": t['min']} for t in self.schedules]
         })
     def genId() -> str:
         return ''.join(random.choices(string.ascii_letters,k=7))
@@ -47,6 +51,17 @@ class Medico_:
         self.file_path = 'src/dataset/names.csv'
         df = pd.read_csv(self.file_path)
         self.medicine_list = set(df['name'].str.lower())
+
+    def setSchedule( self, medilist: List[MedicineInfo] ) -> None:
+        for med in medilist:
+            if '3' in med.frequency or 'thrice' in med.frequency:
+                med.schedules = [{ 'hrs': 8, 'min': 0}, { 'hrs': 12, 'min': 30}, { 'hrs': 20, 'min': 0} ]
+            elif '2' in med.frequency or 'twice' in med.frequency:
+                med.schedules = [{ 'hrs': 8, 'min': 0}, { 'hrs': 20, 'min': 0}]
+            elif '1' in med.frequency or 'once' in med.frequency:
+                med.schedules = [{ 'hrs': 8, 'min': 0} ]
+            else :
+                med.schedules = [{ 'hrs': 20, 'min': 0}]
 
     def _preprocess_text(self) -> str:
         # Convert to lowercase and remove extra whitespace
@@ -118,6 +133,8 @@ class Medico_:
                 elif ent.label_ == "FREQUENCY":
                     medicine_details[current_medicine].frequency = ent.text
 
+        self.setSchedule(list(medicine_details.values()))
+            
         return list(medicine_details.values())
 
     def extractMedicineDetails(self, medicine_names: List[str], method: str = "nlp") -> List[MedicineInfo]:
@@ -136,7 +153,7 @@ class Medico_:
 if __name__ == "__main__":
     text = '''
     Take Augmentin 625 Duo Tablet 2 tab after meals for 7 days twice daily.
-    Sucraday O Syrup 60 ml once daily 3 days before breakfast.
+    Sucraday O Syrup 60 ml once daily 3 days .
     '''
     medico = Medico_(text)
     results = medico.main()

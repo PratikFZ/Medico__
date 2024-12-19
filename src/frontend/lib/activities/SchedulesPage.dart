@@ -4,11 +4,12 @@ import 'dart:convert';
 
 // import 'package:alarm/alarm.dart';
 import 'package:flutter/material.dart';
-import 'package:medico/activities/MedicineInfo';
-import 'package:medico/functions/function.dart';
+import 'package:medico_/activities/MedicineInfo.dart';
+import 'package:medico_/functions/function.dart';
 // import 'package:http/http.dart' as http;
-import 'package:medico/functions/genTTS.dart';
+import 'package:medico_/functions/genTTS.dart';
 import 'package:shared_preferences/shared_preferences.dart';
+import 'package:medico_/activities/EditSchedule.dart';
 
 class SchedulesPage extends StatefulWidget {
   const SchedulesPage({super.key});
@@ -219,128 +220,6 @@ class SchedulesPageState extends State<SchedulesPage> {
           ),
         );
       },
-    );
-  }
-}
-
-class EditSchedulePage extends StatefulWidget {
-  final MedicineInfo? medicineInfo;
-  final bool isSave;
-
-  const EditSchedulePage({super.key, this.medicineInfo, required this.isSave});
-
-  @override
-  // ignore: library_private_types_in_public_api
-  EditSchedulePageState createState() => EditSchedulePageState();
-}
-
-class EditSchedulePageState extends State<EditSchedulePage> {
-  final _formKey = GlobalKey<FormState>();
-  late TextEditingController _nameController;
-  late TextEditingController _quantityController;
-  late TextEditingController _frequencyController;
-  late TextEditingController _durationController;
-  late TextEditingController _mealController;
-
-  @override
-  void initState() {
-    super.initState();
-    _nameController =
-        TextEditingController(text: widget.medicineInfo?.name ?? '');
-    _quantityController =
-        TextEditingController(text: widget.medicineInfo?.quantity ?? '');
-    _frequencyController =
-        TextEditingController(text: widget.medicineInfo?.frequency ?? '');
-    _durationController =
-        TextEditingController(text: widget.medicineInfo?.duration ?? '');
-    _mealController =
-        TextEditingController(text: widget.medicineInfo?.meal ?? '');
-  }
-
-  @override
-  void dispose() {
-    _nameController.dispose();
-    _quantityController.dispose();
-    _frequencyController.dispose();
-    _durationController.dispose();
-    _mealController.dispose();
-    super.dispose();
-  }
-
-  MedicineInfo fetchChanges() {
-    return MedicineInfo(
-      id: widget.medicineInfo == null ? 'x0' : widget.medicineInfo!.id,
-      name: _nameController.text,
-      quantity: _quantityController.text,
-      frequency: _frequencyController.text,
-      duration: _durationController.text,
-      meal: _mealController.text,
-    );
-  }
-
-  @override
-  Widget build(BuildContext context) {
-    return Scaffold(
-      appBar: AppBar(
-        title: Text(
-            widget.medicineInfo == null ? 'Add Schedule' : 'Edit Schedule'),
-      ),
-      body: Form(
-        key: _formKey,
-        child: ListView(
-          padding: EdgeInsets.all(16.0),
-          children: [
-            TextFormField(
-              controller: _nameController,
-              decoration: InputDecoration(labelText: 'Medicine Name'),
-              validator: (value) {
-                if (value == null || value.isEmpty) {
-                  return 'Please enter a medicine name';
-                }
-                return null;
-              },
-            ),
-            TextFormField(
-              controller: _quantityController,
-              decoration: InputDecoration(labelText: 'Quantity'),
-            ),
-            TextFormField(
-              controller: _frequencyController,
-              decoration: InputDecoration(labelText: 'Frequency'),
-            ),
-            TextFormField(
-              controller: _durationController,
-              decoration: InputDecoration(labelText: 'Duration'),
-            ),
-            TextFormField(
-              controller: _mealController,
-              decoration: InputDecoration(labelText: 'Meal'),
-            ),
-            SizedBox(height: 20),
-            ElevatedButton(
-              onPressed: () {
-                if (widget.isSave) {
-                  if (widget.medicineInfo == null) {
-                    saveScheduleLocally(
-                      fetchChanges(),
-                      context,
-                    );
-                  } else {
-                    editScheduleLocally(
-                      fetchChanges(),
-                      context,
-                    );
-                  }
-                }
-                Navigator.of(context).pop(fetchChanges());
-              },
-              child: Text(widget.medicineInfo == null
-                  ? 'Save Schedule'
-                  : 'Edit Schedule'),
-            ),
-          ],
-        ),
-      ),
     );
   }
 }

@@ -1,6 +1,6 @@
 import 'package:alarm/alarm.dart';
 import 'package:flutter/material.dart';
-import 'package:medico/functions/function.dart';
+import 'package:medico_/functions/function.dart';
 
 // Function 1: Initialize alarms
 Future<void> initializeAlarms() async {
@@ -14,33 +14,48 @@ int strID2intID(String id) {
   return sumOfAsciiCodes;
 }
 
-// Function 2: Set an alarm
 Future<void> setAlarm({
   required String id,
   required DateTime dateTime,
   required String assetAudioPath,
-  required String notificationTitle, //Medicine name
-  required String notificationBody, //Medicine dosage
+  required String notificationTitle,
+  required String notificationBody,
   required BuildContext context,
   bool loopAudio = true,
   bool vibrate = true,
   bool fadeDuration = true,
 }) async {
-  final alarmSettings = AlarmSettings(
-    id: strID2intID(id),
-    dateTime: dateTime,
-    assetAudioPath: assetAudioPath,
-    loopAudio: loopAudio,
-    vibrate: vibrate,
-    fadeDuration: 3.0,
-    notificationSettings: NotificationSettings(
-      title: notificationTitle,
-      body: notificationBody,
-    ),
-  );
-  await Alarm.set(alarmSettings: alarmSettings);
-  // ignore: use_build_context_synchronously
-  showError("Alarm set at $dateTime", context);
+  try {
+    final alarmSettings = AlarmSettings(
+      id: strID2intID(id),
+      dateTime: dateTime,
+      assetAudioPath: assetAudioPath,
+      loopAudio: loopAudio,
+      vibrate: vibrate,
+      fadeDuration: 3.0,
+      notificationSettings: NotificationSettings(
+        title: notificationTitle,
+        body: notificationBody,
+      ),
+    );
+
+    await Alarm.set(alarmSettings: alarmSettings);
+
+    if (context.mounted) {
+      // Show success message instead of error
+      ScaffoldMessenger.of(context).showSnackBar(
+        SnackBar(
+          content: Text('Alarm scheduled for ${dateTime.toString()}'),
+          backgroundColor:
+              Colors.green, // Optional: makes it visually distinct from errors
+        ),
+      );
+    }
+  } catch (e) {
+    if (context.mounted) {
+      showError("Failed to set alarm: $e", context);
+    }
+  }
 }
 
 void handleAlarm(BuildContext context, int id) {
@@ -49,15 +64,15 @@ void handleAlarm(BuildContext context, int id) {
       // ignore: use_build_context_synchronously
       context: context,
       builder: (context) => AlertDialog(
-        title: Text('Alarm'),
-        content: Text('Your alarm is ringing!'),
+        title: const Text('Alarm'),
+        content: const Text('Your alarm is ringing!'),
         actions: [
           TextButton(
             onPressed: () {
               Alarm.stop(id);
               Navigator.pop(context);
             },
-            child: Text('Dismiss'),
+            child: const Text('Dismiss'),
           ),
         ],
       ),
@@ -66,11 +81,21 @@ void handleAlarm(BuildContext context, int id) {
 }
 
 // Function 4: Delete an alarm
-Future<void> deleteAlarm( String id) async {
-  await Alarm.stop( strID2intID(id) );
+Future<void> deleteAlarm(String id) async {
+  await Alarm.stop(strID2intID(id));
 }
 
 // Function 5: Get all alarms
 Future<List<AlarmSettings>> getAlarms() async {
   return Alarm.getAlarms();
+}
+
+DateTime TOD2DT(TimeOfDay t) {
+  final now = DateTime.now();
+  return DateTime(now.year, now.month, now.day, t.hour, t.minute);
+}
+
+DateTime Map2DT(int hrs, int min) {
+  final now = DateTime.now();
+  return DateTime(now.year, now.month, now.day, hrs, min);
 }
