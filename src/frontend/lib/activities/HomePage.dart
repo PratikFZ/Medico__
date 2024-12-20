@@ -2,28 +2,31 @@
 
 import 'dart:convert';
 import 'package:flutter/material.dart';
-import 'package:medico_/activities/EditSchedule.dart';
-import 'package:medico_/functions/function.dart';
-import 'package:medico_/activities/MedicineInfo.dart';
-import 'package:medico_/activities/AlaramRingPage.dart';
+import 'package:medico/activities/EditSchedule.dart';
+import 'package:medico/activities/SchedulesPage.dart';
+import 'package:medico/functions/function.dart';
+import 'package:medico/activities/MedicineInfo.dart';
+import 'package:medico/activities/AlaramRingPage.dart';
 import 'package:url_launcher/url_launcher.dart';
-import 'package:medico_/activities/MedicineRecognitionPage.dart';
+import 'package:medico/activities/MedicineRecognitionPage.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 import 'package:alarm/alarm.dart';
-import 'package:medico_/materials/medicineCard.dart';
+import 'package:medico/materials/medicineCard.dart';
 import 'dart:async';
-import 'package:medico_/functions/alarm.dart';
+import 'package:medico/functions/alarm.dart';
 
 class HomePage extends StatefulWidget {
   const HomePage({super.key});
 
   @override
+  // ignore: library_private_types_in_public_api
   _HomePageState createState() => _HomePageState();
 }
 
 class _HomePageState extends State<HomePage> {
   int _selectedIndex = 0;
   List<MedicineInfo> medicineSchedule = [];
+  // ignore: unused_field
   bool _isLoading = false;
 
   late List<AlarmSettings>? alarms = [];
@@ -45,7 +48,7 @@ class _HomePageState extends State<HomePage> {
 
   void loadAlarms() {
     setState(() {
-      alarms ??= Alarm.getAlarms() as List<AlarmSettings>? ;
+      alarms ??= Alarm.getAlarms() as List<AlarmSettings>?;
       alarms?.sort((a, b) => a.dateTime.isBefore(b.dateTime) ? 0 : 1);
     });
   }
@@ -189,7 +192,7 @@ class _HomePageState extends State<HomePage> {
       case 1:
         return _buildMedicinesPage();
       case 2:
-        return _buildProfilePage();
+        return const SchedulesPage();
       default:
         return _buildHomePage();
     }
@@ -204,46 +207,67 @@ class _HomePageState extends State<HomePage> {
         children: [
           const Text("Upcoming Reminders"),
           Expanded(
-            child: medicineSchedule.isEmpty
-                ? const Center(
-                    child: Column(
-                      mainAxisAlignment: MainAxisAlignment.center,
-                      children: [
-                        Text(
-                          "No data, please add schedule",
-                          style: TextStyle(
-                            fontSize: 16,
-                            color: Colors.grey,
+              child: medicineSchedule.isEmpty
+                  ? const Center(
+                      child: Column(
+                        mainAxisAlignment: MainAxisAlignment.center,
+                        children: [
+                          Text(
+                            "No data, please add schedule",
+                            style: TextStyle(
+                              fontSize: 16,
+                              color: Colors.grey,
+                            ),
                           ),
-                        ),
-                        SizedBox(height: 16),
-                      ],
-                    ),
-                  )
-                : ListView.builder(
-                    itemCount: medicineSchedule.length,
-                    itemBuilder: (context, index) {
-                      final medicine = medicineSchedule[index];
-                      return Padding(
-                        padding: const EdgeInsets.symmetric(vertical: 8.0),
-                        child: MedicineCard(
-                          med: medicine, //medicine['time']!, //
-                        ),
-                      );
-                    },
-                  ),
-          ),
+                          SizedBox(height: 16),
+                        ],
+                      ),
+                    )
+                  : ListView.builder(
+                      itemCount: medicineSchedule.length,
+                      itemBuilder: (context, index) {
+                        final medicine = medicineSchedule[index];
+                        return Padding(
+                          padding: const EdgeInsets.symmetric(vertical: 8.0),
+                          child: Dismissible(
+                            key: ValueKey(medicine
+                                .id), // Use a unique key, such as the medicine ID
+                            direction: DismissDirection
+                                .horizontal, // Allow horizontal swiping
+                            onDismissed: (direction) {
+                              // Perform action when dismissed, e.g., remove item from list
+                              setState(() {
+                                deleteScheduleLocally(medicine, context);
+                                medicineSchedule.removeAt(index);
+                              });
+                            },
+                            child: MedicineCard(
+                              med: medicine, // medicine['time']!,
+                            ),
+                          ),
+                        );
+                      },
+                    )
+
+              // : ListView.builder(
+              //     itemCount: medicineSchedule.length,
+              //     itemBuilder: (context, index) {
+              //       final medicine = medicineSchedule[index];
+
+              //       return Padding(
+              //         padding: const EdgeInsets.symmetric(vertical: 8.0),
+              //         child: MedicineCard(
+              //           med: medicine, //medicine['time']!, //
+              //         ),
+              //       );
+              //     },
+              //   ),
+              ),
           GestureDetector(
             onTap: () {
-              print("Add Schedule tapped!");
+              // print("Add Schedule tapped!");
               // _showImageSourceDialog();
               _showImageSourceDialog();
-              // Navigator.push(
-              //     context,
-              //     MaterialPageRoute(
-              //         builder: (context) =>
-              //             const EditPage()) //MedicineRecognitionPage()),
-              //     ).then((_) => _fetchSchedulesLocally(context));
             },
             child: Container(
               width: double.infinity,

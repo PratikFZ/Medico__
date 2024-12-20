@@ -1,10 +1,10 @@
-import 'package:medico_/functions/function.dart';
+import 'package:medico/functions/function.dart';
 
 class MedicineInfo {
-  final String id;
+  String id;
   final String name;
   final String quantity;
-  final String duration; //in days only
+  final String duration; // in days only
   final String meal;
   final String frequency;
   List<dynamic>? schedules;
@@ -15,14 +15,14 @@ class MedicineInfo {
     this.duration = "",
     this.meal = "anytime",
     this.frequency = "",
-    id = "x0",
-    schedules,
-  })  : schedules = schedules ?? [],
-        id = generateRandomString();
+    String? id, // Allow optional id
+    List<dynamic>? schedules,
+  })  : id = id ?? generateRandomString(), // Generate only if not provided
+        schedules = schedules ?? [];
 
   factory MedicineInfo.fromJson(Map<String, dynamic> json) {
     return MedicineInfo(
-      id: json['id'] ?? generateRandomString(),
+      id: json['id'], // Use id from JSON if available
       name: json['name'] ?? '',
       quantity: json['quantity'] ?? '',
       duration: json['duration'] ?? '',

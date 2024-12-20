@@ -1,11 +1,11 @@
 // ignore_for_file: use_build_context_synchronously
 
-import 'package:medico_/functions/alarm.dart';
-import 'package:medico_/functions/genTTS.dart';
+import 'package:medico/functions/alarm.dart';
+import 'package:medico/functions/genTTS.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 import 'dart:convert';
 import 'package:flutter/material.dart';
-import 'package:medico_/activities/MedicineInfo.dart';
+import 'package:medico/activities/MedicineInfo.dart';
 import 'dart:math';
 
 String generateRandomString() {
@@ -67,11 +67,13 @@ Map<String, dynamic> toJson(MedicineInfo med) {
 Future<void> saveScheduleLocally(
     MedicineInfo medicine, BuildContext context) async {
   List<MedicineInfo> schedules = [medicine];
+
   try {
     final prefs = await SharedPreferences.getInstance();
     final String medicineJson = jsonEncode(toJson(medicine));
-    // print(medicineJson);
-    await prefs.setString('medicine_${medicine.id}', medicineJson);
+    final String key = 'medicine_${medicine.id}';
+    await prefs.setString(key, medicineJson);
+
     String dir = await getDir();
 
     if (!context.mounted) return;
@@ -80,22 +82,20 @@ Future<void> saveScheduleLocally(
     alarmTime ??= DateTime.now().add(const Duration(minutes: 1));
 
     setAlarm(
-        id: medicine.id,
-        dateTime: alarmTime, //DateTime.now().add(const Duration(minutes: 1)),
-        assetAudioPath: '$dir/${medicine.id}.mp3',
-        notificationTitle: medicine.name,
-        notificationBody: 'take ${medicine.quantity} of ${medicine.name}',
-        context: context);
-    // ScaffoldMessenger.of(context).showSnackBar(
-    //   const SnackBar(content: Text('Schedule saved successfully')),
-    // );
+      id: medicine.id,
+      dateTime: alarmTime,
+      assetAudioPath: '$dir/${medicine.id}.mp3',
+      notificationTitle: medicine.name,
+      notificationBody: 'Take ${medicine.quantity} of ${medicine.name}',
+      context: context,
+    );
 
     await generateTTS(schedules, context);
-
   } catch (e) {
     showError('Failed to save schedule locally: $e', context);
   }
 }
+
 
 Future<void> editScheduleLocally(
     MedicineInfo medicine, BuildContext context) async {
@@ -113,13 +113,30 @@ Future<void> editScheduleLocally(
 
 Future<void> deleteScheduleLocally(
     MedicineInfo medicine, BuildContext context) async {
+  // print('Deleting with id: ${medicine.id}');
   try {
     final prefs = await SharedPreferences.getInstance();
-    await prefs.remove('medicine_${medicine.id}');
-    ScaffoldMessenger.of(context).showSnackBar(
-      const SnackBar(content: Text('Schedule deleted successfully')),
-    );
-    deleteAlarm(medicine.id);
+    final String key = 'medicine_${medicine.id}';
+
+    // Debugging: Check if the key exists before deleting
+    // print('Attempting to delete key: $key');
+    // print('All keys before deletion: ${prefs.getKeys()}');
+
+    if (prefs.containsKey(key)) {
+      await prefs.remove(key);
+      deleteAlarm(medicine.id);
+
+      ScaffoldMessenger.of(context).showSnackBar(
+        const SnackBar(content: Text('Schedule deleted successfully')),
+      );
+    } else {
+      ScaffoldMessenger.of(context).showSnackBar(
+        const SnackBar(content: Text('Schedule not found')),
+      );
+    }
+
+    // Debugging: Print all keys after deletion
+    // print('All keys after deletion: ${prefs.getKeys()}');
   } catch (e) {
     showError('Failed to delete schedule locally: $e', context);
   }

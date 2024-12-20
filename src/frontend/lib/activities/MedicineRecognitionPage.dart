@@ -5,9 +5,9 @@ import 'package:image_picker/image_picker.dart';
 import 'dart:convert';
 import 'dart:io';
 import 'package:http/http.dart' as http;
-import 'package:medico_/activities/MedicineInfo.dart';
-import 'package:medico_/activities/EditSchedule.dart';
-import 'package:medico_/functions/function.dart';
+import 'package:medico/activities/MedicineInfo.dart';
+import 'package:medico/activities/EditSchedule.dart';
+import 'package:medico/functions/function.dart';
 
 class MedicineRecognitionPage extends StatefulWidget {
   const MedicineRecognitionPage({super.key});

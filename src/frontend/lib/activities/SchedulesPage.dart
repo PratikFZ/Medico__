@@ -4,12 +4,12 @@ import 'dart:convert';
 
 // import 'package:alarm/alarm.dart';
 import 'package:flutter/material.dart';
-import 'package:medico_/activities/MedicineInfo.dart';
-import 'package:medico_/functions/function.dart';
+import 'package:medico/activities/MedicineInfo.dart';
+import 'package:medico/functions/function.dart';
 // import 'package:http/http.dart' as http;
-import 'package:medico_/functions/genTTS.dart';
+import 'package:medico/functions/genTTS.dart';
 import 'package:shared_preferences/shared_preferences.dart';
-import 'package:medico_/activities/EditSchedule.dart';
+import 'package:medico/activities/EditSchedule.dart';
 
 class SchedulesPage extends StatefulWidget {
   const SchedulesPage({super.key});

@@ -1,5 +1,5 @@
 import 'package:flutter/material.dart';
-import 'package:medico_/activities/HomePage.dart';
+import 'package:medico/activities/HomePage.dart';
 import 'package:alarm/alarm.dart';
 
 void main() async {

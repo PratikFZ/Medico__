@@ -1,6 +1,6 @@
 import 'package:alarm/alarm.dart';
 import 'package:flutter/material.dart';
-import 'package:medico_/functions/function.dart';
+import 'package:medico/functions/function.dart';
 
 // Function 1: Initialize alarms
 Future<void> initializeAlarms() async {

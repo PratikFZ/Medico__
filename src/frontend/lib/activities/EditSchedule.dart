@@ -1,6 +1,6 @@
 import 'package:flutter/material.dart';
-import 'package:medico_/activities/MedicineInfo.dart';
-import 'package:medico_/functions/function.dart';
+import 'package:medico/activities/MedicineInfo.dart';
+import 'package:medico/functions/function.dart';
 // import 'package:medico_/functions/alarm.dart';
 // import 'package:http/http.dart' as http;
 

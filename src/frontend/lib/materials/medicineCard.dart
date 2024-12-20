@@ -1,8 +1,8 @@
 // MedicineCard remains the same as in the previous implementation
-import 'package:medico_/activities/MedicineInfo.dart';
+import 'package:medico/activities/MedicineInfo.dart';
 import 'package:flutter/material.dart';
-import 'package:medico_/functions/function.dart';
-import 'package:medico_/functions/alarm.dart';
+import 'package:medico/functions/function.dart';
+import 'package:medico/functions/alarm.dart';
 
 class MedicineCard extends StatefulWidget {
   final MedicineInfo med;
