@@ -1,130 +1,9 @@
 import 'package:flutter/material.dart';
 import 'package:medico/activities/MedicineInfo.dart';
+import 'package:medico/functions/alarm.dart';
 import 'package:medico/functions/function.dart';
 // import 'package:medico_/functions/alarm.dart';
 // import 'package:http/http.dart' as http;
-
-class EditSchedulePage extends StatefulWidget {
-  final MedicineInfo? medicineInfo;
-  final bool isSave;
-
-  const EditSchedulePage({super.key, this.medicineInfo, required this.isSave});
-
-  @override
-  // ignore: library_private_types_in_public_api
-  EditSchedulePageState createState() => EditSchedulePageState();
-}
-
-class EditSchedulePageState extends State<EditSchedulePage> {
-  final _formKey = GlobalKey<FormState>();
-  late TextEditingController _nameController;
-  late TextEditingController _quantityController;
-  late TextEditingController _frequencyController;
-  late TextEditingController _durationController;
-  late TextEditingController _mealController;
-
-  @override
-  void initState() {
-    super.initState();
-    _nameController =
-        TextEditingController(text: widget.medicineInfo?.name ?? '');
-    _quantityController =
-        TextEditingController(text: widget.medicineInfo?.quantity ?? '');
-    _frequencyController =
-        TextEditingController(text: widget.medicineInfo?.frequency ?? '');
-    _durationController =
-        TextEditingController(text: widget.medicineInfo?.duration ?? '');
-    _mealController =
-        TextEditingController(text: widget.medicineInfo?.meal ?? '');
-  }
-
-  @override
-  void dispose() {
-    _nameController.dispose();
-    _quantityController.dispose();
-    _frequencyController.dispose();
-    _durationController.dispose();
-    _mealController.dispose();
-    super.dispose();
-  }
-
-  MedicineInfo fetchChanges() {
-    return MedicineInfo(
-      id: widget.medicineInfo == null ? 'x0' : widget.medicineInfo!.id,
-      name: _nameController.text,
-      quantity: _quantityController.text,
-      frequency: _frequencyController.text,
-      duration: _durationController.text,
-      meal: _mealController.text,
-    );
-  }
-
-  @override
-  Widget build(BuildContext context) {
-    return Scaffold(
-      appBar: AppBar(
-        title: Text(
-            widget.medicineInfo == null ? 'Add Schedule' : 'Edit Schedule'),
-      ),
-      body: Form(
-        key: _formKey,
-        child: ListView(
-          padding: const EdgeInsets.all(16.0),
-          children: [
-            TextFormField(
-              controller: _nameController,
-              decoration: const InputDecoration(labelText: 'Medicine Name'),
-              validator: (value) {
-                if (value == null || value.isEmpty) {
-                  return 'Please enter a medicine name';
-                }
-                return null;
-              },
-            ),
-            TextFormField(
-              controller: _quantityController,
-              decoration: const InputDecoration(labelText: 'Quantity'),
-            ),
-            TextFormField(
-              controller: _frequencyController,
-              decoration: const InputDecoration(labelText: 'Frequency'),
-            ),
-            TextFormField(
-              controller: _durationController,
-              decoration: const InputDecoration(labelText: 'Duration'),
-            ),
-            TextFormField(
-              controller: _mealController,
-              decoration: const InputDecoration(labelText: 'Meal'),
-            ),
-            const SizedBox(height: 20),
-            ElevatedButton(
-              onPressed: () {
-                if (widget.isSave) {
-                  if (widget.medicineInfo == null) {
-                    saveScheduleLocally(
-                      fetchChanges(),
-                      context,
-                    );
-                  } else {
-                    editScheduleLocally(
-                      fetchChanges(),
-                      context,
-                    );
-                  }
-                }
-                Navigator.of(context).pop(fetchChanges());
-              },
-              child: Text(widget.medicineInfo == null
-                  ? 'Save Schedule'
-                  : 'Edit Schedule'),
-            ),
-          ],
-        ),
-      ),
-    );
-  }
-}
 
 class EditPage extends StatefulWidget {
   final MedicineInfo? medicineInfo;
@@ -139,24 +18,26 @@ class _EditPageState extends State<EditPage> {
   final List<bool> _selectedDays = List.generate(7, (_) => false);
   DateTime _duration = DateTime.now();
   String _quantity = '';
-  final String _meal = '';
+  String _meal = '';
   String _frequency = '';
-  final List<TimeOfDay> _alarms = [];
+  // List<TimeOfDay> _alarms = [];
   List<dynamic> schedules = [];
+  List<TimeOfDay> alarms = [];
 
   @override
   void initState() {
     super.initState();
     _medicineName = widget.medicineInfo?.name ?? '';
     _quantity = widget.medicineInfo?.quantity ?? '';
-    schedules;
+    schedules = widget.medicineInfo?.schedules ?? [];
+    alarms = Map2TOD(schedules);
     _duration = DateTime(
       DateTime.now().year,
       DateTime.now().month,
       DateTime.now().day,
       DateTime.now().hour,
       DateTime.now().minute,
-    ).add(const Duration(days: 0));
+    ).add(Duration(days: widget.medicineInfo?.duration ?? 0 ));
   }
 
   @override
@@ -254,10 +135,10 @@ class _EditPageState extends State<EditPage> {
         const SizedBox(height: 8.0),
         TextFormField(
           // maxLines: 3,
-          initialValue: widget.medicineInfo?.quantity,
+          initialValue: widget.medicineInfo?.meal,
           onChanged: (value) {
             setState(() {
-              _quantity = value;
+              _meal = value;
             });
           },
           decoration: const InputDecoration(
@@ -276,14 +157,14 @@ class _EditPageState extends State<EditPage> {
         const Text('Set Alarm'),
         const SizedBox(height: 8.0),
         Column(
-          children: _alarms.map((alarm) {
+          children: alarms.map((alarm) {
             return ListTile(
               title: Text(alarm.format(context)),
               trailing: IconButton(
                 icon: const Icon(Icons.delete),
                 onPressed: () {
                   setState(() {
-                    _alarms.remove(alarm);
+                    alarms.remove(alarm);
                   });
                 },
               ),
@@ -294,7 +175,7 @@ class _EditPageState extends State<EditPage> {
                 );
                 if (newTime != null) {
                   setState(() {
-                    _alarms[_alarms.indexOf(alarm)] = newTime;
+                    alarms[alarms.indexOf(alarm)] = newTime;
                   });
                 }
               },
@@ -309,7 +190,7 @@ class _EditPageState extends State<EditPage> {
             );
             if (newTime != null) {
               setState(() {
-                _alarms.add(newTime);
+                alarms.add(newTime);
               });
             }
           },
@@ -386,35 +267,37 @@ class _EditPageState extends State<EditPage> {
   void _saveReminder() {
     // Save the reminder data and navigate back
 
-    if (_alarms.length == 3) {
+    if (alarms.length == 3) {
       _frequency = 'thrice daily';
-    } else if (_alarms.length == 2) {
+    } else if (alarms.length == 2) {
       _frequency = 'twice daily';
-    } else if (_alarms.length == 1) {
+    } else if (alarms.length == 1) {
       _frequency = 'once daily';
     } else {
       _frequency = 'custom';
     }
 
-    for (var alarm in _alarms) {
-      // print('All good');
+    for (var alarm in alarms) {
       schedules.add({"hrs": alarm.hour, "min": alarm.minute});
     }
 
     MedicineInfo medicineInfo = MedicineInfo(
       name: _medicineName,
+      duration: _duration.difference( DateTime.now()).inDays,
       quantity: _quantity,
       meal: _meal,
       frequency: _frequency,
     );
     medicineInfo.schedules = schedules;
 
-    saveScheduleLocally(medicineInfo, context);
+    if (widget.medicineInfo == null) {
+      saveScheduleLocally(medicineInfo, context);
 
-    ScaffoldMessenger.of(context).showSnackBar(
-      const SnackBar(content: Text('Schedule saved successfully')),
-    );
+      ScaffoldMessenger.of(context).showSnackBar(
+        const SnackBar(content: Text('Schedule saved successfully')),
+      );
+    }
 
-    Navigator.pop(context);
+    Navigator.of(context).pop(medicineInfo);
   }
 }

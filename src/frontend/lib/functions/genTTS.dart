@@ -9,11 +9,25 @@ import 'package:medico/activities/MedicineInfo.dart';
 import 'package:medico/functions/function.dart';
 import 'package:path_provider/path_provider.dart';
 import 'package:archive/archive.dart';
+import 'package:flutter_tts/flutter_tts.dart';
 
 Future<String> getDir() async {
   Directory appDocDir = await getApplicationDocumentsDirectory();
   String ttsDir = '${appDocDir.path}/tts_files';
   return ttsDir;
+}
+
+Future<void> genrateTTSLocally(MedicineInfo med) async {
+  try {
+    String ttsDir = await getDir();
+    await Directory(ttsDir).create(recursive: true);
+    FlutterTts flutterTts = FlutterTts();
+    flutterTts.synthesizeToFile(
+        "Take ${med.quantity} of ${med.name} on ${med.meal}",
+        "$ttsDir/${med.id}.mp3", true);
+  } catch (e) {
+    print("$e");
+  }
 }
 
 Future<void> generateTTS(
@@ -29,25 +43,27 @@ Future<void> generateTTS(
       medicines.remove(med);
       print("removed!!");
     } else {
-      print("Fuckedup!!");
+      print("edup!!");
     }
   }
 
   try {
-    var response = await http.post(
-      Uri.parse(url),
-      headers: {'Content-Type': 'application/json'},
-      body: jsonEncode({
-        'medicines': medicines
-            .map((medicine) => {
-                  'id': medicine.id,
-                  'name': medicine.name,
-                  'quantity':
-                      medicine.quantity.isNotEmpty ? medicine.quantity : '',
-                })
-            .toList(),
-      }),
-    );
+    var response = await http
+        .post(
+          Uri.parse(url),
+          headers: {'Content-Type': 'application/json'},
+          body: jsonEncode({
+            'medicines': medicines
+                .map((medicine) => {
+                      'id': medicine.id,
+                      'name': medicine.name,
+                      'quantity':
+                          medicine.quantity.isNotEmpty ? medicine.quantity : '',
+                    })
+                .toList(),
+          }),
+        )
+        .timeout(const Duration(seconds: 10));
 
     if (response.headers['content-type']?.contains('application/zip') ??
         false) {

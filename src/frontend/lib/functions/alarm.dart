@@ -15,7 +15,7 @@ int strID2intID(String id) {
 }
 
 Future<void> setAlarm({
-  required String id,
+  required int id,
   required DateTime dateTime,
   required String assetAudioPath,
   required String notificationTitle,
@@ -27,7 +27,7 @@ Future<void> setAlarm({
 }) async {
   try {
     final alarmSettings = AlarmSettings(
-      id: strID2intID(id),
+      id: id,
       dateTime: dateTime,
       assetAudioPath: assetAudioPath,
       loopAudio: loopAudio,
@@ -36,6 +36,7 @@ Future<void> setAlarm({
       notificationSettings: NotificationSettings(
         title: notificationTitle,
         body: notificationBody,
+        stopButton: "Stop"
       ),
     );
 
@@ -81,8 +82,8 @@ void handleAlarm(BuildContext context, int id) {
 }
 
 // Function 4: Delete an alarm
-Future<void> deleteAlarm(String id) async {
-  await Alarm.stop(strID2intID(id));
+Future<void> deleteAlarm(int id) async {
+  await Alarm.stop(id);
 }
 
 // Function 5: Get all alarms
@@ -98,4 +99,12 @@ DateTime TOD2DT(TimeOfDay t) {
 DateTime Map2DT(int hrs, int min) {
   final now = DateTime.now();
   return DateTime(now.year, now.month, now.day, hrs, min);
+}
+
+List<TimeOfDay> Map2TOD(List<dynamic> alarms) {
+  List<TimeOfDay> alarmsTOD = [];
+  for (var alarm in alarms) {
+    alarmsTOD.add( TimeOfDay(hour: alarm['hrs'], minute: alarm['min']) );
+  }
+  return alarmsTOD;
 }

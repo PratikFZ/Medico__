@@ -3,7 +3,6 @@
 import 'dart:convert';
 import 'package:flutter/material.dart';
 import 'package:medico/activities/EditSchedule.dart';
-import 'package:medico/activities/SchedulesPage.dart';
 import 'package:medico/functions/function.dart';
 import 'package:medico/activities/MedicineInfo.dart';
 import 'package:medico/activities/AlaramRingPage.dart';
@@ -14,6 +13,7 @@ import 'package:alarm/alarm.dart';
 import 'package:medico/materials/medicineCard.dart';
 import 'dart:async';
 import 'package:medico/functions/alarm.dart';
+import 'package:medico/materials/profileIcon.dart';
 
 class HomePage extends StatefulWidget {
   const HomePage({super.key});
@@ -24,7 +24,6 @@ class HomePage extends StatefulWidget {
 }
 
 class _HomePageState extends State<HomePage> {
-  int _selectedIndex = 0;
   List<MedicineInfo> medicineSchedule = [];
   // ignore: unused_field
   bool _isLoading = false;
@@ -54,10 +53,11 @@ class _HomePageState extends State<HomePage> {
   }
 
   Future<void> navigateToRingScreen(AlarmSettings alarmSettings) async {
+    MedicineInfo med = await fetchMedLocally(alarmSettings.id);
     await Navigator.push(
       context,
       MaterialPageRoute<void>(
-        builder: (context) => AlarmRingScreen(alarmSettings: alarmSettings),
+        builder: (context) => AlarmRingScreen(alarmSettings: alarmSettings, med: med,),
       ),
     );
     loadAlarms();
@@ -120,11 +120,11 @@ class _HomePageState extends State<HomePage> {
   ];
 
   // Method to handle bottom navigation item taps
-  void _onItemTapped(int index) {
-    setState(() {
-      _selectedIndex = index;
-    });
-  }
+  // void _onItemTapped(int index) {
+  //   setState(() {
+  //     _selectedIndex = index;
+  //   });
+  // }
 
   Future<void> _showImageSourceDialog() async {
     return showDialog(
@@ -184,21 +184,7 @@ class _HomePageState extends State<HomePage> {
     return "Go to sleep Champ!";
   }
 
-  // Method to get the current page based on selected index
-  Widget _getCurrentPage() {
-    switch (_selectedIndex) {
-      case 0:
-        return _buildHomePage();
-      case 1:
-        return _buildMedicinesPage();
-      case 2:
-        return const SchedulesPage();
-      default:
-        return _buildHomePage();
-    }
-  }
 
-  // Home page content (similar to previous implementation)
   Widget _buildHomePage() {
     return Padding(
       padding: const EdgeInsets.all(16.0),
@@ -248,20 +234,6 @@ class _HomePageState extends State<HomePage> {
                         );
                       },
                     )
-
-              // : ListView.builder(
-              //     itemCount: medicineSchedule.length,
-              //     itemBuilder: (context, index) {
-              //       final medicine = medicineSchedule[index];
-
-              //       return Padding(
-              //         padding: const EdgeInsets.symmetric(vertical: 8.0),
-              //         child: MedicineCard(
-              //           med: medicine, //medicine['time']!, //
-              //         ),
-              //       );
-              //     },
-              //   ),
               ),
           GestureDetector(
             onTap: () {
@@ -373,79 +345,34 @@ class _HomePageState extends State<HomePage> {
     );
   }
 
-  // Placeholder pages for other bottom navigation items
-  Widget _buildMedicinesPage() {
-    return Center(
-      child: Text(
-        'Medicines Page',
-        style: TextStyle(fontSize: 24, color: Colors.blue[700]),
-      ),
-    );
-  }
-
-  Widget _buildProfilePage() {
-    return Center(
-      child: Text(
-        'Profile Page',
-        style: TextStyle(fontSize: 24, color: Colors.blue[700]),
-      ),
-    );
-  }
-
   @override
   Widget build(BuildContext context) {
     return Scaffold(
       appBar: AppBar(
-          bottom: PreferredSize(
-              preferredSize: const Size.fromHeight(50.0),
-              child: Container(
-                  alignment: Alignment.centerLeft,
-                  padding: const EdgeInsets.symmetric(
-                      horizontal: 16.0, vertical: 8.0),
-                  child: Text(
-                    grettenigMsg(),
-                    style: const TextStyle(
-                      color: Color(0xff000000),
-                      fontSize: 22,
-                    ),
-                  )))),
-      body: _getCurrentPage(), // Use the method to display current page
-      bottomNavigationBar: BottomAppBar(
-        shape: const CircularNotchedRectangle(),
-        notchMargin: 10.0,
-        child: Row(
-          mainAxisSize: MainAxisSize.max,
-          mainAxisAlignment: MainAxisAlignment.spaceAround,
-          children: <Widget>[
-            IconButton(
-              icon: const Icon(Icons.home),
-              color: _selectedIndex == 0 ? Colors.blue : Colors.grey,
-              onPressed: () {
-                _onItemTapped(0);
-              },
-            ),
-            const SizedBox(width: 60),
-            IconButton(
-              icon: const Icon(Icons.settings),
-              color: _selectedIndex == 2 ? Colors.blue : Colors.grey,
-              onPressed: () {
-                _onItemTapped(2);
-              },
-            ),
-          ],
-        ),
+        bottom: PreferredSize(
+          preferredSize: const Size.fromHeight(50.0),
+          child: Row(
+            mainAxisSize: MainAxisSize.max,
+            mainAxisAlignment: MainAxisAlignment.spaceBetween,
+            children: <Widget>[
+              Container(
+                alignment: Alignment.centerLeft,
+                padding: const EdgeInsets.symmetric(
+                    horizontal: 16.0, vertical: 8.0),
+                child: Text(
+                  grettenigMsg(),
+                  style: const TextStyle(
+                    color: Color(0xff000000),
+                    fontSize: 22,
+                  ),
+                )
+              ),
+              const ProfileIconDropdown(),
+            ],
+          )
+        )
       ),
-      floatingActionButton: FloatingActionButton(
-        onPressed: () {
-          // Add your button functionality here
-        },
-        backgroundColor: Colors.blue,
-        shape: const CircleBorder(),
-        elevation: 8.0,
-        tooltip: 'Add',
-        child: const Icon(Icons.add),
-      ),
-      floatingActionButtonLocation: FloatingActionButtonLocation.centerDocked,
+      body: _buildHomePage(), 
     );
   }
 }

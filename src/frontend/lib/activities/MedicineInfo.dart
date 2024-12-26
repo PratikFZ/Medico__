@@ -1,10 +1,10 @@
 import 'package:medico/functions/function.dart';
 
 class MedicineInfo {
-  String id;
+  int id;
   final String name;
   final String quantity;
-  final String duration; // in days only
+  int duration; // in days only
   final String meal;
   final String frequency;
   List<dynamic>? schedules;
@@ -12,10 +12,10 @@ class MedicineInfo {
   MedicineInfo({
     required this.name,
     this.quantity = "",
-    this.duration = "",
+    this.duration = -1,
     this.meal = "anytime",
     this.frequency = "",
-    String? id, // Allow optional id
+    int? id, // Allow optional id
     List<dynamic>? schedules,
   })  : id = id ?? generateRandomString(), // Generate only if not provided
         schedules = schedules ?? [];

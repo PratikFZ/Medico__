@@ -4,11 +4,33 @@
 
 import 'package:alarm/alarm.dart';
 import 'package:flutter/material.dart';
+import 'package:medico/activities/MedicineInfo.dart';
+import 'package:medico/functions/function.dart';
 
-class AlarmRingScreen extends StatelessWidget {
-  const AlarmRingScreen({required this.alarmSettings, super.key});
+// ignore: must_be_immutable
+class AlarmRingScreen extends StatefulWidget {
+  AlarmSettings alarmSettings;
+  MedicineInfo med;
+  AlarmRingScreen({required this.alarmSettings, required this.med, super.key});
 
-  final AlarmSettings alarmSettings;
+  @override
+  // ignore: library_private_types_in_public_api
+  AlarmRingScreenState createState() => AlarmRingScreenState();
+}
+
+class AlarmRingScreenState extends State<AlarmRingScreen> {
+
+  @override
+  void initState() {
+    super.initState();
+    // _initialize();
+  }
+
+  // Future<void> _initialize() async {
+  //   // widget.med = await fetchMedLocally(widget.alarmSettings.id);
+  //   // setState(() {}); // Trigger a rebuild once the data is fetched
+  // }
+
 
   @override
   Widget build(BuildContext context) {
@@ -18,7 +40,7 @@ class AlarmRingScreen extends StatelessWidget {
           mainAxisAlignment: MainAxisAlignment.spaceAround,
           children: [
             Text(
-              'You alarm (${alarmSettings.id}) is ringing...',
+              'You alarm (${ widget.med.name}) is ringing...',
               style: Theme.of(context).textTheme.titleLarge,
             ),
             const Text('🔔', style: TextStyle(fontSize: 50)),
@@ -29,7 +51,7 @@ class AlarmRingScreen extends StatelessWidget {
                   onPressed: () {
                     final now = DateTime.now();
                     Alarm.set(
-                      alarmSettings: alarmSettings.copyWith(
+                      alarmSettings: widget.alarmSettings.copyWith(
                         dateTime: DateTime(
                           now.year,
                           now.month,
@@ -49,7 +71,14 @@ class AlarmRingScreen extends StatelessWidget {
                 ),
                 RawMaterialButton(
                   onPressed: () {
-                    Alarm.stop(alarmSettings.id).then((_) {
+                    // Alarm.stop(widget.alarmSettings.id).then((_) {
+                    //   if (context.mounted) Navigator.pop(context);
+                    // });
+                    Alarm.set(
+                      alarmSettings: widget.alarmSettings.copyWith(
+                        dateTime: getLatestTimeOfAlarm( widget.med ) ,
+                      ),
+                    ).then((_) {
                       if (context.mounted) Navigator.pop(context);
                     });
                   },

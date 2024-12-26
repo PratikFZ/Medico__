@@ -8,11 +8,10 @@ import 'package:flutter/material.dart';
 import 'package:medico/activities/MedicineInfo.dart';
 import 'dart:math';
 
-String generateRandomString() {
-  const characters = 'abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ';
+int generateRandomString() {
   final random = Random();
-  return List.generate(
-      7, (index) => characters[random.nextInt(characters.length)]).join();
+  // Generate a 7-digit random number
+  return random.nextInt(9000000) + 1000000;
 }
 
 String getLink() {
@@ -21,7 +20,7 @@ String getLink() {
 }
 
 DateTime? getLatestTimeOfAlarm(MedicineInfo med) {
-  if (med.schedules!.isEmpty) {
+  if (med.schedules!.isEmpty || med.duration == -1) {
     return null;
   }
   DateTime now = DateTime.now();
@@ -31,7 +30,10 @@ DateTime? getLatestTimeOfAlarm(MedicineInfo med) {
       return cur;
     }
   }
-  return Map2DT(med.schedules![0]['hrs'], med.schedules![0]['min']);
+
+  med.duration = med.duration - 1;
+  return Map2DT(med.schedules![0]['hrs'], med.schedules![0]['min'])
+      .add(const Duration(days: 1));
 }
 
 void showError(String message, BuildContext context) {
@@ -64,9 +66,16 @@ Map<String, dynamic> toJson(MedicineInfo med) {
   };
 }
 
+Future<MedicineInfo> fetchMedLocally(int id) async {
+  final prefs = await SharedPreferences.getInstance();
+  String json = prefs.getString('medicine_$id')!;
+  // print('All keys before deletion: ${json}');
+  return MedicineInfo.fromJson(jsonDecode(json));
+}
+
 Future<void> saveScheduleLocally(
     MedicineInfo medicine, BuildContext context) async {
-  List<MedicineInfo> schedules = [medicine];
+  // List<MedicineInfo> schedules = [medicine];
 
   try {
     final prefs = await SharedPreferences.getInstance();
@@ -90,12 +99,12 @@ Future<void> saveScheduleLocally(
       context: context,
     );
 
-    await generateTTS(schedules, context);
+    // await generateTTS(schedules, context);
+    await genrateTTSLocally(medicine);
   } catch (e) {
     showError('Failed to save schedule locally: $e', context);
   }
 }
-
 
 Future<void> editScheduleLocally(
     MedicineInfo medicine, BuildContext context) async {

@@ -13,7 +13,7 @@ from datetime import time
 @dataclass
 class MedicineInfo:
     name: str
-    id: str = ""
+    id: int 
     quantity: str = ""
     duration: str = ""
     meal: str = "anytime"
@@ -38,8 +38,8 @@ class MedicineInfo:
             'meal': self.meal,
             'schedules': [{"hour": t['hrs'], "minute": t['min']} for t in self.schedules]
         })
-    def genId() -> str:
-        return ''.join(random.choices(string.ascii_letters,k=7))
+    def genId() -> int:
+        return random.randint(1000000, 9999999)
 
 
 class Medico_:

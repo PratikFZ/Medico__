@@ -96,7 +96,7 @@ class _MedicineRecognitionPageState extends State<MedicineRecognitionPage> {
 
   Widget _buildMedicineList() {
     if (_medicineDetails.isEmpty) {
-      return Text('No medicines recognized.');
+      return const Text('No medicines recognized.');
     }
 
     return ListView.builder(
@@ -112,7 +112,7 @@ class _MedicineRecognitionPageState extends State<MedicineRecognitionPage> {
                 children: [
                   if (med.quantity.isNotEmpty)
                     Text('Quantity: ${med.quantity}'),
-                  if (med.duration.isNotEmpty)
+                  if (med.duration != -1)
                     Text('Duration: ${med.duration}'),
                   if (med.meal.isNotEmpty) Text('Meal: ${med.meal}'),
                   if (med.frequency.isNotEmpty)
@@ -121,14 +121,14 @@ class _MedicineRecognitionPageState extends State<MedicineRecognitionPage> {
               ),
               trailing: Row(mainAxisSize: MainAxisSize.min, children: <Widget>[
                 IconButton(
-                  icon: Icon(Icons.edit),
+                  icon: const Icon(Icons.edit),
                   onPressed: () async {
                     final MedicineInfo? save = await Navigator.push(
                       context,
                       MaterialPageRoute(
-                        builder: (context) => EditSchedulePage(
+                        builder: (context) => EditPage(
                           medicineInfo: med,
-                          isSave: false,
+                          // isSave: false,
                         ),
                       ),
                     );
@@ -143,7 +143,7 @@ class _MedicineRecognitionPageState extends State<MedicineRecognitionPage> {
                   onPressed: () async {
                     saveScheduleLocally(med, context);
                   },
-                  icon: Icon(Icons.save),
+                  icon: const Icon(Icons.save),
                 )
               ])),
         );
@@ -155,16 +155,16 @@ class _MedicineRecognitionPageState extends State<MedicineRecognitionPage> {
   Widget build(BuildContext context) {
     return Scaffold(
         appBar: AppBar(
-          title: Text('Upload Prescription'),
+          title: const Text('Upload Prescription'),
         ),
         body: Center(
           child: SingleChildScrollView(
-            padding: EdgeInsets.all(16.0),
+            padding: const EdgeInsets.all(16.0),
             child: Column(
               mainAxisAlignment: MainAxisAlignment.center,
               children: [
                 _image == null
-                    ? Text('No image selected.')
+                    ? const Text('No image selected.')
                     : Image.file(
                         _image!,
                         height: 200,
@@ -198,7 +198,7 @@ class _MedicineRecognitionPageState extends State<MedicineRecognitionPage> {
                 ),
                 const SizedBox(height: 20),
                 _isLoading
-                    ? CircularProgressIndicator()
+                    ? const CircularProgressIndicator()
                     : Column(
                         crossAxisAlignment: CrossAxisAlignment.start,
                         children: [
@@ -212,12 +212,12 @@ class _MedicineRecognitionPageState extends State<MedicineRecognitionPage> {
                           //   Text(_extractedText),
                           //   SizedBox(height: 20),
                           // ],
-                          Text(
+                          const Text(
                             'Medicine Details:',
                             style: TextStyle(
                                 fontWeight: FontWeight.bold, fontSize: 16),
                           ),
-                          SizedBox(height: 8),
+                          const SizedBox(height: 8),
                           _buildMedicineList(),
                         ],
                       ),
