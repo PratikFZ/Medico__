@@ -19,7 +19,6 @@ class AlarmRingScreen extends StatefulWidget {
 }
 
 class AlarmRingScreenState extends State<AlarmRingScreen> {
-
   @override
   void initState() {
     super.initState();
@@ -31,7 +30,6 @@ class AlarmRingScreenState extends State<AlarmRingScreen> {
   //   // setState(() {}); // Trigger a rebuild once the data is fetched
   // }
 
-
   @override
   Widget build(BuildContext context) {
     return Scaffold(
@@ -40,7 +38,7 @@ class AlarmRingScreenState extends State<AlarmRingScreen> {
           mainAxisAlignment: MainAxisAlignment.spaceAround,
           children: [
             Text(
-              'You alarm (${ widget.med.name}) is ringing...',
+              'You alarm (${widget.med.name}) is ringing...',
               style: Theme.of(context).textTheme.titleLarge,
             ),
             const Text('🔔', style: TextStyle(fontSize: 50)),
@@ -71,16 +69,20 @@ class AlarmRingScreenState extends State<AlarmRingScreen> {
                 ),
                 RawMaterialButton(
                   onPressed: () {
-                    // Alarm.stop(widget.alarmSettings.id).then((_) {
-                    //   if (context.mounted) Navigator.pop(context);
-                    // });
-                    Alarm.set(
-                      alarmSettings: widget.alarmSettings.copyWith(
-                        dateTime: getLatestTimeOfAlarm( widget.med ) ,
-                      ),
-                    ).then((_) {
+                    // ignore: non_constant_identifier_names
+                    final DateTime? LTA =
+                        getLatestTimeOfAlarm(widget.med, context);
+                    if (LTA != null) {
+                      Alarm.set(
+                        alarmSettings: widget.alarmSettings.copyWith(
+                          dateTime: LTA,
+                        ),
+                      ).then((_) {
+                        if (context.mounted) Navigator.pop(context);
+                      });
+                    } else {
                       if (context.mounted) Navigator.pop(context);
-                    });
+                    }
                   },
                   child: Text(
                     'Stop',

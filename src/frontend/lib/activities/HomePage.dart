@@ -57,9 +57,14 @@ class _HomePageState extends State<HomePage> {
     await Navigator.push(
       context,
       MaterialPageRoute<void>(
-        builder: (context) => AlarmRingScreen(alarmSettings: alarmSettings, med: med,),
+        builder: (context) => AlarmRingScreen(
+          alarmSettings: alarmSettings,
+          med: med,
+        ),
       ),
-    );
+    ).then((_) {
+      _fetchSchedulesLocally(context);
+    });
     loadAlarms();
   }
 
@@ -184,7 +189,6 @@ class _HomePageState extends State<HomePage> {
     return "Go to sleep Champ!";
   }
 
-
   Widget _buildHomePage() {
     return Padding(
       padding: const EdgeInsets.all(16.0),
@@ -233,8 +237,7 @@ class _HomePageState extends State<HomePage> {
                           ),
                         );
                       },
-                    )
-              ),
+                    )),
           GestureDetector(
             onTap: () {
               // print("Add Schedule tapped!");
@@ -349,30 +352,27 @@ class _HomePageState extends State<HomePage> {
   Widget build(BuildContext context) {
     return Scaffold(
       appBar: AppBar(
-        bottom: PreferredSize(
-          preferredSize: const Size.fromHeight(50.0),
-          child: Row(
-            mainAxisSize: MainAxisSize.max,
-            mainAxisAlignment: MainAxisAlignment.spaceBetween,
-            children: <Widget>[
-              Container(
-                alignment: Alignment.centerLeft,
-                padding: const EdgeInsets.symmetric(
-                    horizontal: 16.0, vertical: 8.0),
-                child: Text(
-                  grettenigMsg(),
-                  style: const TextStyle(
-                    color: Color(0xff000000),
-                    fontSize: 22,
-                  ),
-                )
-              ),
-              const ProfileIconDropdown(),
-            ],
-          )
-        )
-      ),
-      body: _buildHomePage(), 
+          bottom: PreferredSize(
+              preferredSize: const Size.fromHeight(50.0),
+              child: Row(
+                mainAxisSize: MainAxisSize.max,
+                mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                children: <Widget>[
+                  Container(
+                      alignment: Alignment.centerLeft,
+                      padding: const EdgeInsets.symmetric(
+                          horizontal: 16.0, vertical: 8.0),
+                      child: Text(
+                        grettenigMsg(),
+                        style: const TextStyle(
+                          color: Color(0xff000000),
+                          fontSize: 22,
+                        ),
+                      )),
+                  const ProfileIconDropdown(),
+                ],
+              ))),
+      body: _buildHomePage(),
     );
   }
 }

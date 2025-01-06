@@ -59,7 +59,7 @@ class MedicineCardWidget extends State<MedicineCard> {
               mainAxisAlignment: MainAxisAlignment.center,
               children: [
                 Text(
-                  getTime(getLatestTimeOfAlarm(widget.med)),
+                  getTime(getLatestTimeOfAlarm(widget.med, context)),
                   style:
                       const TextStyle(fontSize: 14, color: Colors.blueAccent),
                 ),

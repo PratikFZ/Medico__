@@ -32,11 +32,13 @@ Future<void> setAlarm({
       assetAudioPath: assetAudioPath,
       loopAudio: loopAudio,
       vibrate: vibrate,
+      volume: 1,
+      volumeEnforced: true,
       fadeDuration: 3.0,
       notificationSettings: NotificationSettings(
         title: notificationTitle,
         body: notificationBody,
-        stopButton: "Stop"
+        stopButton: "Stop",
       ),
     );
 

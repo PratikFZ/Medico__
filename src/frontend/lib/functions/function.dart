@@ -19,8 +19,10 @@ String getLink() {
   return localhost;
 }
 
-DateTime? getLatestTimeOfAlarm(MedicineInfo med) {
+DateTime? getLatestTimeOfAlarm(MedicineInfo med, BuildContext context) {
   if (med.schedules!.isEmpty || med.duration == -1) {
+    // deleteScheduleLocally(med, context);
+    // fetchSchedulesLocally(context);
     return null;
   }
   DateTime now = DateTime.now();
@@ -32,8 +34,8 @@ DateTime? getLatestTimeOfAlarm(MedicineInfo med) {
   }
 
   med.duration = med.duration - 1;
-  return Map2DT(med.schedules![0]['hrs'], med.schedules![0]['min'])
-      .add(const Duration(days: 1));
+  return (med.duration != -1)?Map2DT(med.schedules![0]['hrs'], med.schedules![0]['min'])
+      .add(const Duration(days: 1)): null;
 }
 
 void showError(String message, BuildContext context) {
@@ -87,7 +89,7 @@ Future<void> saveScheduleLocally(
 
     if (!context.mounted) return;
 
-    DateTime? alarmTime = getLatestTimeOfAlarm(medicine);
+    DateTime? alarmTime = getLatestTimeOfAlarm(medicine, context);
     alarmTime ??= DateTime.now().add(const Duration(minutes: 1));
 
     setAlarm(
