@@ -8,39 +8,7 @@ from typing import List, Tuple, Dict, Optional
 from dataclasses import dataclass, field
 import json
 from datetime import time
-
-
-@dataclass
-class MedicineInfo:
-    name: str
-    id: int 
-    quantity: str = ""
-    duration: str = ""
-    meal: str = "anytime"
-    frequency: str = ""
-    schedules: List[Dict] = field(default_factory=list)
-
-    def fromJson( self, data ) -> None:
-        self.id = data.get("id")
-        self.name = data.get("name")
-        self.quantity = data.get("quantity")
-        self.duration = data.get("duration")
-        self.meal = data.get("meal")
-        self.frequency = data.get("frequency")
-    
-    def toJson( self) -> str:
-        return json.dumps({
-            'id': self.id,
-            'name': self.name,
-            'quantity': self.quantity,
-            'frequency': self.frequency,
-            'duration': self.duration,
-            'meal': self.meal,
-            'schedules': [{"hour": t['hrs'], "minute": t['min']} for t in self.schedules]
-        })
-    def genId() -> int:
-        return random.randint(1000000, 9999999)
-
+from lib.MedicineInfo import MedicineInfo
 
 class Medico_:
     def __init__(self, text: str) -> None:
