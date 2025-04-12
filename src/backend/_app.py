@@ -38,7 +38,7 @@ def process_image():
         result = [med.__dict__ for med in medicine_details if med.name]
 
         print( result )
-        return jsonify({'medicine_details': result, 'extracted_text': extracted_text}), 200
+        return jsonify({'medicine_details': result}), 200
 
     except Exception as e:
         return jsonify({'error': str(e)}), 500       

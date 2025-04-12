@@ -25,7 +25,7 @@ class MedicineInfo {
       id: json['id'], // Use id from JSON if available
       name: json['name'] ?? '',
       quantity: json['quantity'] ?? '',
-      duration: json['duration'] ?? '',
+      duration: json['duration'] ?? -1,
       meal: json['meal'] ?? 'anytime',
       frequency: json['frequency'] ?? '',
       schedules: json['schedules'],

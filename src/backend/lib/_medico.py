@@ -16,7 +16,7 @@ class Medico_:
         self.nlp = spacy.load('en_core_web_sm')
         self.ruler = self.nlp.add_pipe("entity_ruler", before="ner")
         self.LABELS = ["MEDICINE", "QUANTITY", "DURATION", "MEAL", "FREQUENCY"]
-        self.file_path = 'dataset/names.csv'
+        self.file_path = 'src/backend/dataset/names.csv'
         df = pd.read_csv(self.file_path)
         self.medicine_list = set(df['name'].str.lower())
 

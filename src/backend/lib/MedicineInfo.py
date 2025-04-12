@@ -9,7 +9,7 @@ class MedicineInfo:
     name: str
     id: int 
     quantity: str = ""
-    duration: str = ""
+    duration: int = 1
     meal: str = "anytime"
     frequency: str = ""
     schedules: List[Dict] = field(default_factory=list)
