@@ -1,4 +1,6 @@
-// ignore_for_file: use_build_context_synchronously
+// ignore: file_names
+// ignore: file_names
+// ignore_for_file: use_build_context_synchronously, file_names, duplicate_ignore
 
 import 'dart:convert';
 import 'package:flutter/material.dart';
@@ -54,7 +56,7 @@ class _HomePageState extends State<HomePage> {
 
   Future<void> navigateToRingScreen(AlarmSettings alarmSettings) async {
     MedicineInfo med = await fetchMedLocally(alarmSettings.id);
-    await Navigator.push(
+    Navigator.push(
       context,
       MaterialPageRoute<void>(
         builder: (context) => AlarmRingScreen(
@@ -63,6 +65,7 @@ class _HomePageState extends State<HomePage> {
         ),
       ),
     ).then((_) {
+      print("yesssss>>>>>>>>>>>");
       _fetchSchedulesLocally(context);
     });
     loadAlarms();
@@ -83,15 +86,20 @@ class _HomePageState extends State<HomePage> {
     try {
       final prefs = await SharedPreferences.getInstance();
       final keys = prefs.getKeys();
+      final List<MedicineInfo> fetchList = [];
       for (String key in keys) {
         if (key.startsWith('medicine_')) {
           final String? medicineJson = prefs.getString(key);
           if (medicineJson != null) {
             final data = jsonDecode(medicineJson);
-            medicineSchedule.add(MedicineInfo.fromJson(data));
+            fetchList.add(MedicineInfo.fromJson(data));
           }
         }
       }
+
+      setState(() {
+        medicineSchedule = fetchList;
+      });
 
       // await generateTTS(_schedules, context);
     } catch (e) {
@@ -197,47 +205,50 @@ class _HomePageState extends State<HomePage> {
         children: [
           const Text("Upcoming Reminders"),
           Expanded(
-              child: medicineSchedule.isEmpty
-                  ? const Center(
-                      child: Column(
-                        mainAxisAlignment: MainAxisAlignment.center,
-                        children: [
-                          Text(
-                            "No data, please add schedule",
-                            style: TextStyle(
-                              fontSize: 16,
-                              color: Colors.grey,
-                            ),
+              child: _isLoading
+                  ? const Center(child: CircularProgressIndicator())
+                  : (medicineSchedule.isEmpty
+                      ? const Center(
+                          child: Column(
+                            mainAxisAlignment: MainAxisAlignment.center,
+                            children: [
+                              Text(
+                                "No data, please add schedule",
+                                style: TextStyle(
+                                  fontSize: 16,
+                                  color: Colors.grey,
+                                ),
+                              ),
+                              SizedBox(height: 16),
+                            ],
                           ),
-                          SizedBox(height: 16),
-                        ],
-                      ),
-                    )
-                  : ListView.builder(
-                      itemCount: medicineSchedule.length,
-                      itemBuilder: (context, index) {
-                        final medicine = medicineSchedule[index];
-                        return Padding(
-                          padding: const EdgeInsets.symmetric(vertical: 8.0),
-                          child: Dismissible(
-                            key: ValueKey(medicine
-                                .id), // Use a unique key, such as the medicine ID
-                            direction: DismissDirection
-                                .horizontal, // Allow horizontal swiping
-                            onDismissed: (direction) {
-                              // Perform action when dismissed, e.g., remove item from list
-                              setState(() {
-                                deleteScheduleLocally(medicine, context);
-                                medicineSchedule.removeAt(index);
-                              });
-                            },
-                            child: MedicineCard(
-                              med: medicine, // medicine['time']!,
-                            ),
-                          ),
-                        );
-                      },
-                    )),
+                        )
+                      : ListView.builder(
+                          itemCount: medicineSchedule.length,
+                          itemBuilder: (context, index) {
+                            final medicine = medicineSchedule[index];
+                            return Padding(
+                              padding:
+                                  const EdgeInsets.symmetric(vertical: 8.0),
+                              child: Dismissible(
+                                key: ValueKey(medicine
+                                    .id), // Use a unique key, such as the medicine ID
+                                direction: DismissDirection
+                                    .horizontal, // Allow horizontal swiping
+                                onDismissed: (direction) {
+                                  // Perform action when dismissed, e.g., remove item from list
+                                  setState(() {
+                                    deleteScheduleLocally(medicine, context);
+                                    medicineSchedule.removeAt(index);
+                                  });
+                                },
+                                child: MedicineCard(
+                                  med: medicine, // medicine['time']!,
+                                ),
+                              ),
+                            );
+                          },
+                        ))),
           GestureDetector(
             onTap: () {
               // print("Add Schedule tapped!");

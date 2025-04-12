@@ -1,0 +1,7 @@
+flask
+flask-cors
+gtts
+pytesseract
+pillow
+spacy
+pandas

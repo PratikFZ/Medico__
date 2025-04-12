@@ -21,7 +21,7 @@ String getLink() {
 
 DateTime? getLatestTimeOfAlarm(MedicineInfo med, BuildContext context) {
   if (med.schedules!.isEmpty || med.duration == -1) {
-    // deleteScheduleLocally(med, context);
+    deleteScheduleLocally(med, context);
     // fetchSchedulesLocally(context);
     return null;
   }
