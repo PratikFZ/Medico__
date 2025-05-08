@@ -3,8 +3,9 @@
 import 'package:flutter/material.dart';
 import 'package:image_picker/image_picker.dart';
 import 'dart:convert';
-import 'dart:io';
+import 'package:universal_io/io.dart';
 import 'package:http/http.dart' as http;
+import 'package:flutter/foundation.dart' show kIsWeb;
 import 'package:medico/activities/MedicineInfo.dart';
 import 'package:medico/activities/EditSchedule.dart';
 import 'package:medico/functions/function.dart';
@@ -19,12 +20,35 @@ class MedicineRecognitionPage extends StatefulWidget {
 }
 
 class _MedicineRecognitionPageState extends State<MedicineRecognitionPage> {
-  File? _image;
+  XFile? _image;
   final ImagePicker _picker = ImagePicker();
   bool _isLoading = false;
   // ignore: unused_field
   String _extractedText = "";
   List<MedicineInfo> _medicineDetails = [];
+  
+  // Helper method to get the appropriate image widget based on platform
+  Future<Widget> _getImageWidget() async {
+    if (_image == null) {
+      return const Text('No image selected.');
+    }
+    
+    if (kIsWeb) {
+      // For web, we need to use a different approach
+      // Get the bytes and convert to memory image
+      final bytes = await _image!.readAsBytes();
+      return Image.memory(
+        bytes,
+        height: 200,
+      );
+    } else {
+      // For mobile platforms
+      return Image.file(
+        File(_image!.path),
+        height: 200,
+      );
+    }
+  }
 
   Future<void> _pickImageFromGal() async {
     final XFile? pickedFile =
@@ -32,7 +56,7 @@ class _MedicineRecognitionPageState extends State<MedicineRecognitionPage> {
 
     if (pickedFile != null) {
       setState(() {
-        _image = File(pickedFile.path);
+        _image = pickedFile;
         _extractedText = "";
         _medicineDetails = [];
       });
@@ -47,7 +71,7 @@ class _MedicineRecognitionPageState extends State<MedicineRecognitionPage> {
 
     if (pickedFile != null) {
       setState(() {
-        _image = File(pickedFile.path);
+        _image = pickedFile;
         _extractedText = "";
         _medicineDetails = [];
       });
@@ -56,7 +80,7 @@ class _MedicineRecognitionPageState extends State<MedicineRecognitionPage> {
     }
   }
 
-  Future<void> _processImage(File imageFile) async {
+  Future<void> _processImage(XFile imageFile) async {
     setState(() {
       _isLoading = true;
     });
@@ -65,8 +89,24 @@ class _MedicineRecognitionPageState extends State<MedicineRecognitionPage> {
 
     try {
       var request = http.MultipartRequest('POST', Uri.parse(url));
-      request.files
-          .add(await http.MultipartFile.fromPath('image', imageFile.path));
+      
+      // Handle file upload differently for web and mobile
+      if (kIsWeb) {
+        // For web, read the bytes directly
+        List<int> bytes = await imageFile.readAsBytes();
+        request.files.add(
+          http.MultipartFile.fromBytes(
+            'image',
+            bytes,
+            filename: imageFile.name,
+          ),
+        );
+      } else {
+        // For mobile, use fromPath as before
+        request.files.add(
+          await http.MultipartFile.fromPath('image', imageFile.path),
+        );
+      }
 
       var streamedResponse = await request.send();
       var response = await http.Response.fromStream(streamedResponse);
@@ -165,9 +205,19 @@ class _MedicineRecognitionPageState extends State<MedicineRecognitionPage> {
               children: [
                 _image == null
                     ? const Text('No image selected.')
-                    : Image.file(
-                        _image!,
-                        height: 200,
+                    : FutureBuilder<Widget>(
+                        future: _getImageWidget(),
+                        builder: (context, snapshot) {
+                          if (snapshot.connectionState == ConnectionState.done && 
+                              snapshot.hasData) {
+                            return snapshot.data!;
+                          } else {
+                            return const SizedBox(
+                              height: 200,
+                              child: Center(child: CircularProgressIndicator()),
+                            );
+                          }
+                        },
                       ),
                 const SizedBox(height: 20),
                 Row(
