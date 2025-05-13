@@ -15,7 +15,7 @@ int generateRandomString() {
 }
 
 String getLink() {
-  String localhost = 'https://sensible-mastiff-intent.ngrok-free.app';
+  String localhost = 'https://medico-ja6d.onrender.com';
   return localhost;
 }
 
