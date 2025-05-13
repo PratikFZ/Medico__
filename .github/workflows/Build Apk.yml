@@ -37,12 +37,14 @@ jobs:
       - name: Create Release
         id: create_release
         uses: actions/create-release@v1
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
         with:
-          token: ${{ secrets.GITHUB_TOKEN }}        # ← THIS LINE
-          tag_name: ${{ github.ref_name }}
+          tag_name: ${{ github.ref_name }}       # or whatever tag you’re using
           release_name: Release ${{ github.ref_name }}
           draft: false
           prerelease: false
+
 
 
       # Upload the built APK to the Release
