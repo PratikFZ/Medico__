@@ -47,11 +47,16 @@ jobs:
 
 
 
-      # Upload the built APK to the Release
+      - name: Find built APK
+        id: find_apk
+        run: echo "::set-output name=path::$(find build/app/outputs -name '*.apk' | head -n1)"
+        
       - name: Upload APK to Release
         uses: actions/upload-release-asset@v1
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
         with:
           upload_url: ${{ steps.create_release.outputs.upload_url }}
-          asset_path: build/app/outputs/flutter-apk/app-release.apk
+          asset_path: ${{ steps.find_apk.outputs.path }}
           asset_name: app-release.apk
           asset_content_type: application/vnd.android.package-archive
