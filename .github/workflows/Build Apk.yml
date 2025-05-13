@@ -35,7 +35,7 @@ jobs:
 
       - name: Find built APK
         id: find_apk
-        run: echo "::set-output name=path::$(find build/app/outputs -name '*.apk' | head -n1)"
+        run: echo "::set-output name=path::$(find build/app/outputs/flutter-apk/app-release.apk -name '*.apk' | head -n1)"
         
       - name: Create or update Release
         uses: softprops/action-gh-release@v1
@@ -43,7 +43,7 @@ jobs:
           tag_name: ${{ github.ref_name }}
           name: Release ${{ github.ref_name }}
           files: |
-            build/app/outputs/apk/release/*.apk
+            build/app/outputs/flutter-apk/app-release.apk
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
 
