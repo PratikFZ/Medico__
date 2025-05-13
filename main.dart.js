@@ -92209,7 +92209,7 @@ nT(a){return this.ahu(a)},
 ahu(a4){var s=0,r=A.G(t.H),q=1,p=[],o=[],n=this,m,l,k,j,i,h,g,f,e,d,c,b,a,a0,a1,a2,a3
 var $async$nT=A.C(function(a5,a6){if(a5===1){p.push(a6)
 s=q}while(true)switch(s){case 0:n.a_(new A.arM(n))
-m="https://sensible-mastiff-intent.ngrok-free.app/process_image"
+m="https://medico-ja6d.onrender.com/process_image"
 q=3
 l=A.aQJ("POST",A.h8(m,0,null))
 s=6
