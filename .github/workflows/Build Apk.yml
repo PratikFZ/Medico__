@@ -22,11 +22,17 @@ jobs:
         with:
           flutter-version: '3.29.3'
 
+      - name: Changing dir to frontend
+        run: cd src/frontend
+
       - name: Install dependencies
         run: flutter pub get
 
       - name: Build Android release APK
         run: flutter build apk --release
+
+      - name: Changing dir to src
+        run: cd ../..
 
       # Create or update a GitHub Release
       - name: Create Release
