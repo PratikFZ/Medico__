@@ -1,2 +1,0 @@
-/home/pratikfz/My project/Mobile/Medico__/src/frontend/android/app/.cxx/Debug/43124z95/armeabi-v7a/CMakeFiles/edit_cache.dir
-/home/pratikfz/My project/Mobile/Medico__/src/frontend/android/app/.cxx/Debug/43124z95/armeabi-v7a/CMakeFiles/rebuild_cache.dir
